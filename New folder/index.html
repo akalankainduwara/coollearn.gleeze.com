@@ -1,0 +1,1255 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ICT Quiz - සිංහල | ශ්‍රේණිය 6-13</title>
+<script type="module">
+import{initializeApp}from'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import{getAuth,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut,onAuthStateChanged,updateProfile}from'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+import{getFirestore,doc,setDoc,getDoc,collection,query,orderBy,limit,getDocs,serverTimestamp}from'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+const firebaseConfig={
+  apiKey:"AIzaSyAW8ZQn_EnsU_e-1dqk_BJdCsfIqqSqDXg",
+  authDomain:"ictlk-a5ed0.firebaseapp.com",
+  projectId:"ictlk-a5ed0",
+  storageBucket:"ictlk-a5ed0.firebasestorage.app",
+  messagingSenderId:"1068944925194",
+  appId:"1:1068944925194:web:4cae46240748664eaa75f3",
+  measurementId:"G-GGJM28W0Q0"
+};
+const app=initializeApp(firebaseConfig);
+window._fbAuth=getAuth(app);
+window._fbDb=getFirestore(app);
+window._fbFns={createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut,onAuthStateChanged,updateProfile,doc,setDoc,getDoc,collection,query,orderBy,limit,getDocs,serverTimestamp};
+window.dispatchEvent(new Event('fbReady'));
+</script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Sinhala:wght@300;400;500;600;700;800;900&family=Noto+Serif+Sinhala:wght@700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d1117;--bg2:#161b22;--bg3:#21262d;
+  --border:#30363d;--border2:#444c56;
+  --text:#e6edf3;--muted:#8b949e;--dim:#6e7681;
+  --blue:#58a6ff;--green:#3fb950;--red:#f85149;
+  --yellow:#e3b341;--purple:#bc8cff;--orange:#ffa657;
+  --teal:#39d353;--pink:#ff79c6;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans Sinhala',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+
+/* TOPBAR */
+#topbar{
+  position:fixed;top:0;left:0;right:0;z-index:200;
+  height:50px;background:rgba(13,17,23,.95);backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;padding:0 18px;gap:10px;
+}
+.tb-logo{
+  font-family:'Noto Serif Sinhala',serif;font-size:15px;font-weight:900;
+  display:flex;align-items:center;gap:7px;white-space:nowrap;
+}
+.tb-logo .grd{
+  background:linear-gradient(135deg,var(--blue),var(--purple));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.tb-tag{font-size:9px;font-weight:700;letter-spacing:1.5px;padding:2px 8px;border-radius:20px;background:var(--bg3);border:1px solid var(--border2);color:var(--muted)}
+.tb-bc{margin-left:auto;display:flex;align-items:center;gap:5px;font-size:11px;color:var(--dim)}
+.bc-lnk{cursor:pointer;transition:color .2s}.bc-lnk:hover{color:var(--blue)}
+.bc-cur{color:var(--text);font-weight:600}.bc-sep{color:var(--border2)}
+
+/* MAIN */
+main{padding-top:66px;max-width:800px;margin:0 auto;padding-left:14px;padding-right:14px;padding-bottom:80px}
+
+/* SCREENS */
+.screen{display:none}
+.screen.active{display:block;animation:fadeUp .35s cubic-bezier(.22,1,.36,1)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+/* PAGE HEADER */
+.ph{margin-bottom:24px;padding-bottom:18px;border-bottom:1px solid var(--border)}
+.ph-eye{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--dim);margin-bottom:7px}
+.ph-title{font-family:'Noto Serif Sinhala',serif;font-size:clamp(20px,5vw,32px);font-weight:900;line-height:1.2}
+.ph-sub{font-size:13px;color:var(--muted);margin-top:5px}
+
+/* GRADE GRID */
+.gg{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
+.gc{
+  background:var(--bg2);border:1px solid var(--border);border-radius:12px;
+  padding:18px 12px 15px;cursor:pointer;text-align:center;
+  transition:all .22s cubic-bezier(.22,1,.36,1);position:relative;overflow:hidden;
+}
+.gc:hover{border-color:var(--gc-c);transform:translateY(-3px);box-shadow:0 8px 24px color-mix(in srgb,var(--gc-c) 18%,transparent)}
+.gc-bar{position:absolute;top:0;left:0;right:0;height:3px;background:var(--gc-c);transform:scaleX(0);transform-origin:left;transition:transform .3s;border-radius:12px 12px 0 0}
+.gc:hover .gc-bar,.gc.sel .gc-bar{transform:scaleX(1)}
+.gc.sel{border-color:var(--gc-c);background:color-mix(in srgb,var(--gc-c) 8%,var(--bg2))}
+.gc-em{font-size:26px;margin-bottom:8px;position:relative;z-index:1}
+.gc-num{font-size:16px;font-weight:800;color:var(--gc-c);position:relative;z-index:1}
+.gc-lb{font-size:11px;color:var(--muted);margin-top:2px;position:relative;z-index:1}
+.gc-bd{display:inline-block;margin-top:7px;font-size:9px;font-weight:700;letter-spacing:1px;padding:2px 8px;border-radius:20px;background:color-mix(in srgb,var(--gc-c) 14%,var(--bg3));color:var(--gc-c);position:relative;z-index:1}
+
+/* UNIT LIST */
+.back-btn{display:inline-flex;align-items:center;gap:6px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:6px 13px;font-size:12px;font-family:inherit;color:var(--muted);cursor:pointer;transition:all .2s;margin-bottom:20px}
+.back-btn:hover{border-color:var(--blue);color:var(--blue)}
+.ul-list{display:grid;gap:9px}
+.uc{
+  background:var(--bg2);border:1px solid var(--border);border-radius:11px;
+  padding:14px 16px;cursor:pointer;display:flex;align-items:center;gap:12px;
+  transition:all .22s cubic-bezier(.22,1,.36,1);position:relative;overflow:hidden;
+}
+.uc::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--gc-c,var(--blue));transform:scaleY(0);transform-origin:bottom;transition:transform .25s}
+.uc:hover{border-color:var(--border2);transform:translateX(4px)}
+.uc:hover::before{transform:scaleY(1)}
+.uc-ic{width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;background:var(--bg3);border:1px solid var(--border)}
+.uc-info{flex:1;min-width:0}
+.uc-n{font-size:10px;color:var(--dim);letter-spacing:1px;text-transform:uppercase;margin-bottom:2px}
+.uc-t{font-weight:700;font-size:13.5px;line-height:1.4}
+.uc-m{font-size:11px;color:var(--muted);margin-top:2px}
+.uc-arr{color:var(--border2);font-size:15px;transition:all .2s;flex-shrink:0}
+.uc:hover .uc-arr{color:var(--gc-c,var(--blue));transform:translateX(3px)}
+
+/* QUIZ */
+.qt{background:var(--bg2);border:1px solid var(--border);border-radius:11px;padding:14px 16px;display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap;gap:8px}
+.qt-i{flex:1;min-width:0}
+.qt-t{font-weight:700;font-size:14px}
+.qt-s{font-size:11px;color:var(--muted);margin-top:2px}
+.qt-c{font-size:12px;font-weight:800;padding:5px 13px;border-radius:7px;background:var(--bg3);border:1px solid var(--border);color:var(--blue);white-space:nowrap}
+.pw{height:4px;background:var(--bg3);border-radius:2px;overflow:hidden;margin-bottom:20px}
+.pb{height:100%;background:linear-gradient(90deg,var(--blue),var(--purple));border-radius:2px;transition:width .5s cubic-bezier(.22,1,.36,1)}
+
+/* QUESTION */
+.qc{background:var(--bg2);border:1px solid var(--border);border-radius:13px;padding:22px 20px 18px;animation:fadeUp .3s cubic-bezier(.22,1,.36,1)}
+.qc-top{display:flex;align-items:flex-start;gap:10px;margin-bottom:18px}
+.qc-badge{flex-shrink:0;background:linear-gradient(135deg,var(--blue),var(--purple));color:#fff;font-size:9px;font-weight:800;padding:3px 8px;border-radius:5px;margin-top:3px;letter-spacing:.5px}
+.qc-txt{font-size:15px;font-weight:600;line-height:1.75;color:var(--text)}
+.opts{display:grid;gap:8px;margin-top:2px}
+.opt{
+  background:var(--bg3);border:1px solid var(--border);border-radius:9px;
+  padding:12px 14px;display:flex;align-items:center;gap:11px;
+  cursor:pointer;font-family:inherit;font-size:13.5px;color:var(--text);
+  text-align:left;width:100%;transition:all .18s;
+}
+.opt:not(.lk):hover{border-color:var(--blue);background:color-mix(in srgb,var(--blue) 8%,var(--bg3))}
+.opt-l{width:26px;height:26px;border-radius:6px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;background:var(--bg2);border:1px solid var(--border2);color:var(--muted);transition:all .18s}
+.opt:not(.lk):hover .opt-l{background:var(--blue);border-color:var(--blue);color:#fff}
+.opt.cor{border-color:var(--green);background:color-mix(in srgb,var(--green) 10%,var(--bg3));animation:pop .25s ease}
+.opt.cor .opt-l{background:var(--green);border-color:var(--green);color:#fff}
+.opt.wrg{border-color:var(--red);background:color-mix(in srgb,var(--red) 10%,var(--bg3));animation:shake .3s ease}
+.opt.wrg .opt-l{background:var(--red);border-color:var(--red);color:#fff}
+.opt.rev{border-color:var(--green);opacity:.6}
+.opt.rev .opt-l{background:var(--green);border-color:var(--green);color:#fff}
+@keyframes pop{0%,100%{transform:scale(1)}50%{transform:scale(1.015)}}
+@keyframes shake{0%,100%{transform:translateX(0)}30%{transform:translateX(-6px)}70%{transform:translateX(6px)}}
+
+.fb{margin-top:13px;padding:12px 15px;border-radius:9px;font-size:13px;line-height:1.65;display:none;animation:fadeUp .25s ease}
+.fb.show{display:block}
+.fb.ok{background:color-mix(in srgb,var(--green) 10%,var(--bg2));border:1px solid color-mix(in srgb,var(--green) 35%,transparent);color:#7ee787}
+.fb.fail{background:color-mix(in srgb,var(--red) 10%,var(--bg2));border:1px solid color-mix(in srgb,var(--red) 35%,transparent);color:#ffa198}
+.fb-lbl{font-weight:800;font-size:11px;letter-spacing:.5px;text-transform:uppercase;margin-bottom:5px}
+.nb{display:none;width:100%;margin-top:13px;background:var(--blue);color:#fff;border:none;border-radius:9px;padding:13px;font-size:13.5px;font-weight:700;font-family:inherit;cursor:pointer;transition:all .2s;align-items:center;justify-content:center;gap:7px}
+.nb.show{display:flex;animation:fadeUp .25s ease}
+.nb:hover{background:#3b8de8;transform:translateY(-1px);box-shadow:0 6px 18px rgba(88,166,255,.25)}
+
+/* RESULTS */
+.rh{background:var(--bg2);border:1px solid var(--border);border-radius:15px;padding:32px 22px;text-align:center;margin-bottom:18px}
+.rh-ring{width:100px;height:100px;border-radius:50%;border:4px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:38px;margin:0 auto 16px;position:relative}
+.rh-ring.ex{border-color:var(--green);box-shadow:0 0 28px color-mix(in srgb,var(--green) 28%,transparent)}
+.rh-ring.gd{border-color:var(--yellow);box-shadow:0 0 28px color-mix(in srgb,var(--yellow) 28%,transparent)}
+.rh-ring.pr{border-color:var(--red);box-shadow:0 0 24px color-mix(in srgb,var(--red) 22%,transparent)}
+.rh-pct{font-family:'Noto Serif Sinhala',serif;font-size:54px;font-weight:900;line-height:1;margin-bottom:7px}
+.rh-pct.ex{color:var(--green)}.rh-pct.gd{color:var(--yellow)}.rh-pct.pr{color:var(--red)}
+.rh-msg{font-size:14px;color:var(--muted);margin-bottom:22px}
+.r-st{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:20px}
+.rs{background:var(--bg3);border:1px solid var(--border);border-radius:9px;padding:13px 7px;text-align:center}
+.rs-n{font-size:24px;font-weight:900;line-height:1;margin-bottom:3px}
+.rs-l{font-size:10px;color:var(--muted)}
+.rs.c .rs-n{color:var(--green)}.rs.w .rs-n{color:var(--red)}.rs.t .rs-n{color:var(--blue)}
+.r-act{display:flex;gap:9px;flex-wrap:wrap}
+.ra{flex:1;min-width:110px;padding:11px 8px;border-radius:8px;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;border:1px solid var(--border);background:var(--bg3);color:var(--text);transition:all .2s}
+.ra:hover{border-color:var(--blue);color:var(--blue)}
+.ra.pr{background:var(--blue);border-color:var(--blue);color:#fff}
+.ra.pr:hover{background:#3b8de8;color:#fff}
+
+/* REVIEW */
+.rv-sec{margin-top:22px}
+.rv-t{font-size:14px;font-weight:700;margin-bottom:11px;padding-bottom:9px;border-bottom:1px solid var(--border)}
+.rv-list{display:grid;gap:8px}
+.ri{background:var(--bg2);border:1px solid var(--border);border-radius:9px;padding:13px 15px;border-left:3px solid var(--border)}
+.ri.rc{border-left-color:var(--green)}.ri.rw{border-left-color:var(--red)}
+.ri-q{font-size:12.5px;font-weight:600;margin-bottom:7px}
+.ri-a{display:flex;gap:7px;font-size:11.5px;flex-wrap:wrap}
+.ri-tag{font-size:9px;font-weight:800;padding:2px 6px;border-radius:4px;flex-shrink:0;white-space:nowrap}
+.ri-tag.c{background:color-mix(in srgb,var(--green) 14%,var(--bg3));color:var(--green)}
+.ri-tag.w{background:color-mix(in srgb,var(--red) 14%,var(--bg3));color:var(--red)}
+.ri-d{color:var(--muted);line-height:1.55;flex:1}
+.ri-d strong{color:var(--green)}
+
+/* ══ AUTH MODAL ══ */
+.modal-bg{position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:16px}
+.modal-bg.hidden{display:none}
+.modal{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:28px 24px;width:100%;max-width:380px;animation:fadeUp .3s ease}
+.modal-title{font-family:'Noto Serif Sinhala',serif;font-size:20px;font-weight:900;margin-bottom:4px}
+.modal-sub{font-size:12px;color:var(--muted);margin-bottom:22px}
+.inp-group{margin-bottom:14px}
+.inp-label{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;margin-bottom:5px;display:block}
+.inp{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:11px 14px;font-size:14px;font-family:inherit;color:var(--text);transition:border-color .2s;outline:none}
+.inp:focus{border-color:var(--blue)}
+.inp::placeholder{color:var(--dim)}
+.auth-btn{width:100%;background:var(--blue);color:#fff;border:none;border-radius:9px;padding:13px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;transition:all .2s;margin-top:4px}
+.auth-btn:hover{background:#3b8de8}
+.auth-btn:disabled{opacity:.5;cursor:not-allowed}
+.auth-switch{text-align:center;margin-top:14px;font-size:13px;color:var(--muted)}
+.auth-switch span{color:var(--blue);cursor:pointer;font-weight:600}
+.auth-switch span:hover{text-decoration:underline}
+.err-msg{color:var(--red);font-size:12px;margin-top:8px;padding:8px 12px;background:color-mix(in srgb,var(--red) 10%,var(--bg3));border-radius:6px;border:1px solid color-mix(in srgb,var(--red) 30%,transparent);display:none}
+.err-msg.show{display:block}
+
+/* ══ USER PILL in topbar ══ */
+.tb-user{display:flex;align-items:center;gap:8px;cursor:pointer;margin-left:auto}
+.tb-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--purple));display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;flex-shrink:0}
+.tb-uname{font-size:12px;font-weight:600;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tb-signout{font-size:10px;color:var(--dim);cursor:pointer;padding:3px 7px;border:1px solid var(--border);border-radius:5px;transition:all .2s;background:transparent;font-family:inherit}
+.tb-signout:hover{border-color:var(--red);color:var(--red)}
+.login-btn{margin-left:auto;background:var(--blue);color:#fff;border:none;border-radius:7px;padding:6px 14px;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;transition:all .2s}
+.login-btn:hover{background:#3b8de8}
+
+/* ══ LEADERBOARD SCREEN ══ */
+.lb-tabs{display:flex;gap:8px;margin-bottom:20px;overflow-x:auto;padding-bottom:4px}
+.lb-tab{flex-shrink:0;padding:7px 14px;border-radius:8px;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;border:1px solid var(--border);background:var(--bg2);color:var(--muted);transition:all .2s}
+.lb-tab.act{background:var(--blue);border-color:var(--blue);color:#fff}
+.lb-list{display:grid;gap:8px}
+.lb-row{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:13px 16px;display:flex;align-items:center;gap:12px;animation:fadeUp .3s ease}
+.lb-row.me{border-color:var(--blue);background:color-mix(in srgb,var(--blue) 8%,var(--bg2))}
+.lb-rank{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;flex-shrink:0;background:var(--bg3);border:1px solid var(--border);color:var(--muted)}
+.lb-rank.gold{background:color-mix(in srgb,#ffd700 20%,var(--bg3));border-color:#ffd700;color:#ffd700}
+.lb-rank.silver{background:color-mix(in srgb,#c0c0c0 20%,var(--bg3));border-color:#c0c0c0;color:#c0c0c0}
+.lb-rank.bronze{background:color-mix(in srgb,#cd7f32 20%,var(--bg3));border-color:#cd7f32;color:#cd7f32}
+.lb-info{flex:1;min-width:0}
+.lb-name{font-weight:700;font-size:14px}
+.lb-meta{font-size:11px;color:var(--muted);margin-top:2px}
+.lb-score{font-size:18px;font-weight:900;color:var(--blue);flex-shrink:0}
+.lb-grade-badge{font-size:10px;font-weight:700;padding:2px 7px;border-radius:5px;background:var(--bg3);border:1px solid var(--border);color:var(--muted)}
+.lb-empty{text-align:center;padding:40px 20px;color:var(--muted);font-size:14px}
+.lb-loading{text-align:center;padding:30px;color:var(--dim);font-size:13px}
+.nav-lb-btn{display:flex;align-items:center;gap:6px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:6px 13px;font-size:12px;font-family:inherit;color:var(--muted);cursor:pointer;transition:all .2s}
+.nav-lb-btn:hover{border-color:var(--yellow);color:var(--yellow)}
+
+/* ══ MY STATS ══ */
+.my-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:20px}
+.my-stat{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center}
+.my-stat-n{font-size:26px;font-weight:900;color:var(--blue);line-height:1}
+.my-stat-l{font-size:11px;color:var(--muted);margin-top:4px}
+
+</style>
+</head>
+<body>
+
+<!-- AUTH MODAL -->
+<div class="modal-bg hidden" id="authModal">
+  <div class="modal">
+    <div class="modal-title" id="authTitle">ගිණුමට ඇතුල් වන්න</div>
+    <div class="modal-sub" id="authSub">Quiz ප්‍රතිඵල save + Leaderboard</div>
+    <div class="inp-group" id="nameGroup" style="display:none">
+      <label class="inp-label">ඔබේ නම</label>
+      <input class="inp" id="inp-name" type="text" placeholder="Kamal Perera" maxlength="20">
+    </div>
+    <div class="inp-group">
+      <label class="inp-label">Email</label>
+      <input class="inp" id="inp-email" type="email" placeholder="you@gmail.com">
+    </div>
+    <div class="inp-group">
+      <label class="inp-label">Password</label>
+      <input class="inp" id="inp-pass" type="password" placeholder="••••••••">
+    </div>
+    <div class="err-msg" id="authErr"></div>
+    <button class="auth-btn" id="authSubmit" onclick="authSubmit()">ඇතුල් වන්න</button>
+    <div class="auth-switch" id="authSwitch">
+      ගිණුමක් නැද්ද? <span onclick="toggleAuthMode()">ලියාපදිංචි වන්න</span>
+    </div>
+    <div style="text-align:center;margin-top:10px">
+      <span style="font-size:12px;color:var(--dim);cursor:pointer" onclick="closeAuth()">× වසන්න</span>
+    </div>
+  </div>
+</div>
+
+<div id="topbar">
+  <div class="tb-logo">📚 <span class="grd">ICT Quiz</span></div>
+  <div class="tb-tag">සිංහල</div>
+  <div class="tb-bc" id="bc">
+    <span class="bc-lnk bc-cur" onclick="go('grade')">ශ්‍රේණිය</span>
+  </div>
+  <div id="tb-auth-area">
+    <button class="login-btn" id="loginBtn" onclick="openAuth()">🔑 Login</button>
+  </div>
+</div>
+
+<main>
+
+<!-- SCREEN: GRADE -->
+<div class="screen active" id="s-grade">
+  <div class="ph">
+    <div class="ph-eye">ශ්‍රී ලංකා NIE ICT නිර්දේශය</div>
+    <div class="ph-title">ශ්‍රේණිය තෝරන්න</div>
+    <div class="ph-sub">Grade 6 සිට Grade 13 දක්වා සම්පූර්ණ ICT නිර්දේශය — සියලු ඒකක ඇතුළත්</div>
+    <button class="nav-lb-btn" style="margin-top:14px" onclick="goLB()">🏆 Leaderboard බලන්න</button>
+  </div>
+  <div class="gg" id="gradeGrid"></div>
+</div>
+
+<!-- SCREEN: UNIT -->
+<div class="screen" id="s-unit">
+  <button class="back-btn" onclick="go('grade')">← ශ්‍රේණිය</button>
+  <div class="ph">
+    <div class="ph-eye" id="u-eye"></div>
+    <div class="ph-title">ඒකකය තෝරන්න</div>
+    <div class="ph-sub">නිල NIE ICT නිර්දේශයේ සියලු ඒකක</div>
+  </div>
+  <div class="ul-list" id="unitList"></div>
+</div>
+
+<!-- SCREEN: QUIZ -->
+<div class="screen" id="s-quiz">
+  <button class="back-btn" onclick="go('unit')">← ඒකක ලැයිස්තුව</button>
+  <div class="qt">
+    <div class="qt-i">
+      <div class="qt-t" id="q-title"></div>
+      <div class="qt-s" id="q-sub"></div>
+    </div>
+    <div class="qt-c" id="q-counter"></div>
+  </div>
+  <div class="pw"><div class="pb" id="progBar" style="width:0"></div></div>
+  <div id="qArea"></div>
+</div>
+
+<!-- SCREEN: RESULTS -->
+<div class="screen" id="s-results">
+  <button class="back-btn" onclick="go('unit')">← ඒකක ලැයිස්තුව</button>
+  <div class="ph"><div class="ph-title">ප්‍රතිඵල 📊</div></div>
+  <div class="rh">
+    <div class="rh-ring" id="rRing"></div>
+    <div class="rh-pct" id="rPct"></div>
+    <div class="rh-msg" id="rMsg"></div>
+    <div class="r-st">
+      <div class="rs c"><div class="rs-n" id="rC">0</div><div class="rs-l">✓ නිවැරදි</div></div>
+      <div class="rs w"><div class="rs-n" id="rW">0</div><div class="rs-l">✗ වැරදි</div></div>
+      <div class="rs t"><div class="rs-n" id="rT">0</div><div class="rs-l">මුළු</div></div>
+    </div>
+    <div id="saveArea" style="margin-bottom:12px;display:none">
+      <button class="auth-btn" id="saveBtn" onclick="saveScore()" style="font-size:13px;padding:11px">
+        💾 ලකුණු Save කරන්න
+      </button>
+      <div id="saveMsg" style="text-align:center;font-size:12px;color:var(--green);margin-top:8px;display:none">✓ Leaderboard ගෙ Save කළා!</div>
+    </div>
+    <div class="r-act">
+      <button class="ra pr" onclick="restartSame()">🔄 නැවත</button>
+      <button class="ra" onclick="go('unit')">📖 ඒකකය</button>
+      <button class="ra" onclick="go('grade')">🏠 ශ්‍රේණිය</button>
+      <button class="ra" onclick="goLB()" style="color:var(--yellow);border-color:var(--yellow)">🏆 Leaderboard</button>
+    </div>
+  </div>
+  <div class="rv-sec">
+    <div class="rv-t">📋 ප්‍රශ්න සමාලෝචනය</div>
+    <div class="rv-list" id="rvList"></div>
+  </div>
+</div>
+
+<!-- SCREEN: LEADERBOARD -->
+<div class="screen" id="s-lb">
+  <button class="back-btn" onclick="go('grade')">← ශ්‍රේණිය</button>
+  <div class="ph">
+    <div class="ph-eye">ICT Quiz</div>
+    <div class="ph-title">🏆 Leaderboard</div>
+    <div class="ph-sub">ශ්‍රී ලංකාවේ ICT Quiz ශ්‍රේෂ්ඨ ශිෂ්‍යයන්</div>
+  </div>
+  <div id="myStats" style="display:none">
+    <div style="font-size:13px;font-weight:700;margin-bottom:10px;color:var(--muted)">ඔබේ ප්‍රතිඵල</div>
+    <div class="my-stats">
+      <div class="my-stat"><div class="my-stat-n" id="ms-total">0</div><div class="my-stat-l">මුළු Quizzes</div></div>
+      <div class="my-stat"><div class="my-stat-n" id="ms-best">0%</div><div class="my-stat-l">හොඳම ලකුණු</div></div>
+      <div class="my-stat"><div class="my-stat-n" id="ms-avg">0%</div><div class="my-stat-l">සාමාන්‍ය ලකුණු</div></div>
+      <div class="my-stat"><div class="my-stat-n" id="ms-rank">#-</div><div class="my-stat-l">ගෝලීය Rank</div></div>
+    </div>
+  </div>
+  <div class="lb-tabs" id="lbTabs">
+    <button class="lb-tab act" onclick="loadLB('all',this)">🌍 සියලු</button>
+    <button class="lb-tab" onclick="loadLB('6',this)">Grade 6</button>
+    <button class="lb-tab" onclick="loadLB('7',this)">Grade 7</button>
+    <button class="lb-tab" onclick="loadLB('8',this)">Grade 8</button>
+    <button class="lb-tab" onclick="loadLB('9',this)">Grade 9</button>
+    <button class="lb-tab" onclick="loadLB('10',this)">Grade 10</button>
+    <button class="lb-tab" onclick="loadLB('11',this)">Grade 11</button>
+    <button class="lb-tab" onclick="loadLB('12',this)">Grade 12</button>
+    <button class="lb-tab" onclick="loadLB('13',this)">Grade 13</button>
+  </div>
+  <div class="lb-list" id="lbList"><div class="lb-loading">⏳ Loading...</div></div>
+</div>
+
+
+</main>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// COMPLETE SRI LANKA NIE ICT SYLLABUS — GRADES 6 TO 13
+// ALL OFFICIAL UNITS — FULL SINHALA
+// ═══════════════════════════════════════════════════════
+
+const GM=[
+  {g:6, em:"🌱", c:"#58a6ff", bd:"කනිෂ්ඨ"},
+  {g:7, em:"🌿", c:"#bc8cff", bd:"කනිෂ්ඨ"},
+  {g:8, em:"🌳", c:"#3fb950", bd:"කනිෂ්ඨ"},
+  {g:9, em:"⭐", c:"#ffa657", bd:"මැදි"},
+  {g:10,em:"🔬", c:"#f78166", bd:"සා.පෙ O/L"},
+  {g:11,em:"🎯", c:"#ff7b72", bd:"සා.පෙ O/L"},
+  {g:12,em:"🚀", c:"#39d353", bd:"උ.පෙ A/L"},
+  {g:13,em:"🎓", c:"#e3b341", bd:"උ.පෙ A/L"},
+];
+
+const DATA={
+
+// ══════════════ GRADE 6 ══════════════
+6:[
+  {ic:"💡",t:"ICT හා ජීවිතය",en:"ICT & Daily Life",qs:[
+    {q:"ICT යන්නෙහි සම්පූර්ණ නාමය?",o:["Information Computer Technology","Information and Communication Technology","Internet Computing Technology","Integrated Circuit Technology"],a:1,e:"ICT = Information and Communication Technology (තොරතුරු සහ සන්නිවේදන තාක්ෂණය)."},
+    {q:"ICT ජාතික සංවර්ධනයට දායක වන ක්ෂේත්‍ර?",o:["කෘෂිකාර්මිකය පමණ","සෞඛ්‍ය, අධ්‍යාපන, ව්‍යාපාර ආදී සෑම ක්ෂේත්‍රයකම","බැංකු පමණ","ප්‍රවාහනය පමණ"],a:1,e:"ICT සෞඛ්‍ය, අධ්‍යාපනය, ව්‍යාපාරය, කෘෂිකාර්මිකය, ප්‍රවාහනය ආදී ක්ෂේත්‍ර සියල්ලටම දායකවේ."},
+    {q:"Data හා Information ගේ වෙනස?",o:["Same","Data=raw facts; Information=processed data","Data=processed; Information=raw","Data=Software; Information=Hardware"],a:1,e:"Data = සකසා නොගත් කරුණු (raw facts). Information = Data සකසා ලද ප්‍රයෝජනවත් ප්‍රතිඵල."},
+    {q:"ATM (Auto Teller Machine) ICT ගේ ප්‍රයෝජනයකි. ATM ගේ ක්ෂේත්‍රය?",o:["කෘෂිකාර්මිකය","ආරක්ෂාව","බැංකු/මූල්‍ය","ප්‍රවාහනය"],a:2,e:"ATM = Automatic Teller Machine. බැංකු/Financial sector ගෙ ICT භාවිතයකි."},
+    {q:"ICT ලෝකය හැඳින්වෙන්නේ?",o:["ගිනිගත් ගම","ගෝලීය ගම (Global Village)","ශිෂ්ට ගම","ඩිජිටල් ගම"],a:1,e:"ICT හේතුවෙන් ලෝකය 'Global Village' (ගෝලීය ගමක්) ලෙස හැඳින්වේ."},
+  ]},
+  {ic:"🖥️",t:"පරිගණකය — ආදාන, සැකසුම, ප්‍රතිදාන",en:"Computer as a System",qs:[
+    {q:"IPO model ගේ I, P, O?",o:["Internet, Program, Output","Input, Processing, Output","Input, Print, Open","Interface, Process, Output"],a:1,e:"IPO = Input (ආදාන) → Processing (සැකසුම) → Output (ප්‍රතිදාන)."},
+    {q:"Keyboard, Mouse — කුමන ආකාරයේ devices?",o:["Output Devices","Storage Devices","Input Devices","Processing Devices"],a:2,e:"Keyboard, Mouse = Input Devices. Data/Commands ලබාදෙයි."},
+    {q:"Monitor, Printer — කුමන ආකාරයේ devices?",o:["Input Devices","Storage Devices","Output Devices","Processing Devices"],a:2,e:"Monitor, Printer = Output Devices. ප්‍රතිදාන ලබාදෙයි."},
+    {q:"CPU — Computer System ගේ කාර්යය?",o:["Store data permanently","Process data/instructions (Brain of computer)","Display output","Connect to internet"],a:1,e:"CPU (Central Processing Unit) = Data/Instructions process කරන 'Brain of Computer'."},
+    {q:"Hard Disk Drive (HDD) ගේ ස්වභාවය?",o:["Input Device","Output Device","Storage Device","Processing Device"],a:2,e:"HDD = Storage Device. Data permanently store."},
+  ]},
+  {ic:"🔄",t:"පරිගණකයේ ඉතිහාසය",en:"Evolution of Computers",qs:[
+    {q:"1st Generation Computers ගේ technology?",o:["Transistors","Integrated Circuits","Vacuum Tubes","Microprocessors"],a:2,e:"1st Generation (1940s) = Vacuum Tubes. ENIAC, UNIVAC. විශාල, උෂ්ණ, 느린."},
+    {q:"2nd Generation Computers ගේ technology?",o:["Vacuum Tubes","Transistors","ICs","Microprocessors"],a:1,e:"2nd Generation (1950s-60s) = Transistors. 1st gen ට වඩා කුඩා, ශක්තිමත්."},
+    {q:"3rd Generation Computers ගේ technology?",o:["Vacuum Tubes","Transistors","Integrated Circuits (ICs)","Microprocessors"],a:2,e:"3rd Generation (1960s-70s) = Integrated Circuits (ICs). තවත් කුඩා, වේගවත්."},
+    {q:"4th Generation Computers ගේ technology?",o:["Vacuum Tubes","Transistors","ICs","Microprocessors (VLSI)"],a:3,e:"4th Generation (1971-) = Microprocessors (VLSI). Personal Computers (PCs) ආරම්භය."},
+    {q:"Generations ගොස් ගිය විට Computer ගේ size?",o:["ලොකු වී","කුඩා වී","Same","ලොකු සහ කුඩා"],a:1,e:"Generations progress = Size smaller, Speed faster, Cost lower."},
+  ]},
+  {ic:"💻",t:"Hardware සහ Software",en:"Hardware & Software",qs:[
+    {q:"Hardware යනු?",o:["Computer programs","Physical, tangible components","OS files","Internet data"],a:1,e:"Hardware = ස්පර්ශ කළ හැකි, දිය හැකි physical parts. (Monitor, Keyboard, CPU...)"},
+    {q:"Software යනු?",o:["Physical parts","Tangible components","Programs/Instructions (intangible)","Network cables"],a:2,e:"Software = ස්පර්ශ කළ නොහැකි Programs, Instructions. (Windows, MS Word...)"},
+    {q:"MS Word, Google Chrome ගොනු?",o:["System Software","Application Software","Firmware","Network Software"],a:1,e:"MS Word, Chrome = Application Software (යෙදුම් මෘදුකාංශ). User tasks සඳහා."},
+    {q:"Windows, Linux, macOS ගොනු?",o:["Application Software","Utility Software","System Software (OS)","Antivirus Software"],a:2,e:"Windows, Linux, macOS = Operating System = System Software."},
+    {q:"Firmware යනු?",o:["Application software","Software stored permanently in hardware (ROM)","OS software","Antivirus software"],a:1,e:"Firmware = Hardware ගෙ ROM ගෙ permanently store කළ software. (BIOS, Router firmware)"},
+  ]},
+  {ic:"🌐",t:"අන්තර්ජාලය",en:"The Internet",qs:[
+    {q:"Internet යනු?",o:["One computer","ලෝකය පුරා connected computers ගේ network","One network","Television system"],a:1,e:"Internet = ලෝකය පුරා ඇති billion ගණනක් computers connected කළ ගෝලීය network."},
+    {q:"URL ගේ සම්පූර්ණ නාමය?",o:["Universal Resource Location","Uniform Resource Locator","Unique Resource Link","United Resource Locator"],a:1,e:"URL = Uniform Resource Locator. eg: https://www.google.com"},
+    {q:"Web Browser ගේ ඉලක්කය?",o:["Websites create","Websites browse/view","Emails send only","Files compress"],a:1,e:"Web Browser (Chrome, Firefox, Edge) = Websites browse කිරීමට. Client-side software."},
+    {q:"Email Address ගෙ '@' සලකුණ ගේ ඉලක්කය?",o:["Password","Username + Domain Name divide","Website","Country code"],a:1,e:"@ = Username (name) + Domain (gmail.com) separate. eg: name@gmail.com"},
+    {q:"Search Engine ගේ ඉලක්කය?",o:["Emails send","Files store","Internet information search/retrieve","Video play"],a:2,e:"Search Engine (Google, Bing) = Internet ගෙ information search කිරීමට."},
+  ]},
+  {ic:"🔒",t:"ICT සහ සමාජය",en:"ICT and Society",qs:[
+    {q:"ICT ගේ negative impact (ගැටළු)?",o:["Faster communication","Privacy issues, Cybercrime, Digital Divide","Better education","More jobs"],a:1,e:"ICT negative impacts: Privacy invasion, Cybercrime, Digital Divide, Job losses, E-waste."},
+    {q:"Digital Divide යනු?",o:["Fast internet","ICT access ඇත්ත vs නොමැත්ත ජනතාව ගේ gap","Computer speed gap","Storage gap"],a:1,e:"Digital Divide = ICT access, skills ඇති හා නොමැති ජනතාව/communities ගේ gap."},
+    {q:"Cyberbullying යනු?",o:["Computer virus","Online harassment/bullying","Hardware damage","Network failure"],a:1,e:"Cyberbullying = Online platforms (social media, messages) ගෙ harassment, threats."},
+    {q:"Personal information online share කිරීම?",o:["Always safe","Generally unsafe — privacy risk","Faster internet makes it safe","Only adults safe"],a:1,e:"Online personal info share = Privacy risk. Passwords, NIC, Address share = Dangerous."},
+  ]},
+],
+
+// ══════════════ GRADE 7 ══════════════
+7:[
+  {ic:"🖥️",t:"Operating System",en:"Operating Systems",qs:[
+    {q:"Operating System ගේ ප්‍රධාන function?",o:["Games play","Hardware/Software resource management","Internet browsing","Document creation"],a:1,e:"OS = Hardware + Software resources manage. User-Computer interface provide."},
+    {q:"OS ගේ functions 4ක්?",o:["Input, Output, Store, Print","Providing interface, Process management, Resource management, Security","Login, Logout, Save, Delete","Open, Close, Print, Delete"],a:1,e:"OS functions: Providing interface, Process Management, Resource Management, Security/Protection."},
+    {q:"GUI ගේ සම්පූර්ণ නාමය?",o:["General User Interface","Graphical User Interface","Global Utility Interface","Group User Interface"],a:1,e:"GUI = Graphical User Interface. Icons, Windows, Menus, Buttons ගෙ visual interface."},
+    {q:"Linux OS ගේ ලක්ෂණය?",o:["Paid, Closed Source","Free, Open Source","Apple only","Mobile only"],a:1,e:"Linux = Free (open source) OS. Ubuntu, Fedora, Debian ආදිය linux distributions."},
+    {q:"Multi-tasking OS ලක්ෂණය?",o:["One program at a time","Multiple programs simultaneously run","No RAM required","Internet required"],a:1,e:"Multi-tasking = Multiple programs (processes) simultaneously run. Modern OS feature."},
+    {q:"GUI Components ගේ examples?",o:["Commands, Code, Scripts","Icons, Windows, Menus, Buttons, Dialog boxes","Viruses, Worms, Trojans","Cables, Cards, Ports"],a:1,e:"GUI components = Icons, Windows (frames), Menus, Buttons, Dialog boxes, Scroll bars."},
+  ]},
+  {ic:"📁",t:"ගොනු කළමනාකරණය",en:"File Management",qs:[
+    {q:".docx extension ගේ file type?",o:["Image","Audio","MS Word Document","Video"],a:2,e:".docx = MS Word document file."},
+    {q:".jpg / .jpeg extension?",o:["Audio","Image (JPEG)","Video","Text"],a:1,e:".jpg / .jpeg = JPEG Image file. Lossy compressed."},
+    {q:".mp3 extension?",o:["Image","Video","Text","Audio (MP3)"],a:3,e:".mp3 = MP3 Audio file. Lossy compressed audio."},
+    {q:".pdf extension?",o:["Portable Document Format","Power Distribution File","Program Data File","Printed Document Format"],a:0,e:".pdf = Portable Document Format. Adobe ගෙ document format."},
+    {q:"File Cut vs Copy ගේ වෙනස?",o:["Cut=copy; Paste=delete","Cut=move (original removed); Copy=duplicate (original remains)","Copy=move; Cut=copy","No difference"],a:1,e:"Cut = original file move (remove). Copy = duplicate create, original remains."},
+    {q:"Recycle Bin ගේ purpose?",o:["Store downloads","Temporarily hold deleted files","Store OS","Backup files"],a:1,e:"Recycle Bin = deleted files temporarily hold. Permanently delete = Empty Recycle Bin."},
+    {q:"File Compression (ZIP) ගේ purpose?",o:["Files encrypt","File size reduce","Files delete","Files rename"],a:1,e:"File Compression = File size reduce → easier storage + transfer. ZIP, RAR."},
+  ]},
+  {ic:"🖨️",t:"Input/Output උපාංග",en:"Input/Output Devices",qs:[
+    {q:"Scanner ගේ function?",o:["Documents print","Physical docs → digital images/text convert","Sound record","Video capture"],a:1,e:"Scanner = Physical (paper) documents ගෙ digital images/text බවට convert (digitize)."},
+    {q:"Barcode Scanner ගේ function?",o:["Print barcodes","Barcode ගෙ data read","Photos take","Sound record"],a:1,e:"Barcode Scanner = Barcode ගෙ data (product info) read. Supermarkets, inventory."},
+    {q:"Microphone ගොනු?",o:["Output Device","Input Device","Storage Device","Processing Unit"],a:1,e:"Microphone = Sound input ලබා ගන්නා Input Device."},
+    {q:"Projector ගොනු?",o:["Input Device","Storage Device","Output Device","Processing Unit"],a:2,e:"Projector = Images/Video screen/wall ට project කරන Output Device."},
+    {q:"Touch Screen ගේ ස්වභාවය?",o:["Input only","Output only","Both Input & Output","Storage device"],a:2,e:"Touch Screen = Touch (Input) + Display (Output) = Dual purpose device."},
+    {q:"Digital Camera ගොනු?",o:["Output Device","Input Device","Storage Device","Processing Device"],a:1,e:"Digital Camera = Images/Video capture කරන Input Device."},
+  ]},
+  {ic:"🌐",t:"Computer Networks",en:"Computer Networks",qs:[
+    {q:"Computer Network ගේ purpose?",o:["Single computer use","Resource sharing, communication between computers","Only file store","Only print"],a:1,e:"Network = Resource sharing (files, printers, internet) + Communication."},
+    {q:"LAN, MAN, WAN නිවැරදි classification?",o:["LAN=large; WAN=local","LAN=local/building; MAN=city; WAN=country/world","MAN=local; LAN=city","WAN=building; LAN=world"],a:1,e:"LAN=Local Area Network (building). MAN=Metropolitan (city). WAN=Wide Area (country/world)."},
+    {q:"Network cable types?",o:["Wood, Glass, Metal","Twisted Pair, Coaxial, Fiber Optic","Copper only","Plastic, Rubber, Wood"],a:1,e:"Network cables: Twisted Pair, Coaxial, Fiber Optic (fastest, longest distance)."},
+    {q:"Wireless Network ගේ medium?",o:["Cables","Radio waves / WiFi","Sound waves","Light only"],a:1,e:"Wireless Network = Radio waves (WiFi, Bluetooth). No physical cables."},
+    {q:"Network ගේ disadvantages?",o:["Better communication","Security risks, virus spread, dependency on network","Faster processing","More storage"],a:1,e:"Network disadvantages: Security threats, virus/malware spread, dependency on connectivity."},
+  ]},
+  {ic:"⌨️",t:"Word Processing (Basic)",en:"Word Processing Basics",qs:[
+    {q:"MS Word ගොනු?",o:["Spreadsheet Software","Database Software","Presentation Software","Word Processing Software"],a:3,e:"MS Word = Word Processing Software. Documents create."},
+    {q:"MS Word ගේ default file extension?",o:[".xlsx",".pptx",".docx",".accdb"],a:2,e:"MS Word = .docx extension. (Document)"},
+    {q:"Bold text shortcut?",o:["Ctrl+I","Ctrl+U","Ctrl+B","Ctrl+S"],a:2,e:"Ctrl+B = Bold (තද) text. Ctrl+I = Italic. Ctrl+U = Underline."},
+    {q:"Ctrl+S shortcut?",o:["Select All","Save","Spell Check","Open"],a:1,e:"Ctrl+S = Save file."},
+    {q:"Ctrl+Z shortcut?",o:["Redo","Undo","Save","Close"],a:1,e:"Ctrl+Z = Undo (undo last action). Ctrl+Y = Redo."},
+  ]},
+],
+
+// ══════════════ GRADE 8 ══════════════
+8:[
+  {ic:"🔢",t:"සංඛ්‍යා ක්‍රම",en:"Number Systems",qs:[
+    {q:"Binary ක්‍රමය Base කීය?",o:["Base-10","Base-2","Base-8","Base-16"],a:1,e:"Binary = Base-2. ඉලක්කම් 0 සහ 1 පමණ. Computer ගේ fundamental language."},
+    {q:"Decimal ක්‍රමය Base කීය?",o:["Base-2","Base-8","Base-10","Base-16"],a:2,e:"Decimal = Base-10. ඉලක්කම් 0-9. මිනිස් ජීවිතය ගෙ සාමාන්‍ය ක්‍රමය."},
+    {q:"Octal ක්‍රමය Base කීය?",o:["Base-2","Base-8","Base-10","Base-16"],a:1,e:"Octal = Base-8. ඉලක්කම් 0-7."},
+    {q:"Hexadecimal ක්‍රමය Base කීය?",o:["Base-2","Base-8","Base-10","Base-16"],a:3,e:"Hexadecimal = Base-16. ඉලක්කම් 0-9 + A,B,C,D,E,F."},
+    {q:"Decimal 10 → Binary?",o:["1010","1100","1001","0110"],a:0,e:"10 = 8+2 = 1010₂"},
+    {q:"Binary 1111 → Decimal?",o:["13","14","15","16"],a:2,e:"1111₂ = 8+4+2+1 = 15₁₀"},
+    {q:"1 Byte = Bits කීය?",o:["4","16","2","8"],a:3,e:"1 Byte = 8 Bits. 1 Nibble = 4 Bits."},
+    {q:"1 Kilobyte (KB) = ?",o:["1000 Bytes","1024 Bytes","512 Bytes","2048 Bytes"],a:1,e:"1 KB = 1024 Bytes. (Binary: 2¹⁰ = 1024)"},
+  ]},
+  {ic:"🔤",t:"Data Representation",en:"Data Representation",qs:[
+    {q:"ASCII ගේ සම්පූර්ණ නාමය?",o:["American Standard Code for Information Interchange","Advanced System Code for Internet","Automated Standard Code for Information","American Simple Code for Information"],a:0,e:"ASCII = American Standard Code for Information Interchange. Characters encode."},
+    {q:"ASCII ගේ characters ගණන?",o:["256","512","128","64"],a:2,e:"ASCII = 128 characters (7-bit). Extended ASCII = 256 (8-bit)."},
+    {q:"Unicode ගේ purpose?",o:["English only encode","All world languages (Sinhala, Tamil, Arabic...) encode","Numbers only","Images encode"],a:1,e:"Unicode = Universal character encoding. ලෝකයේ සියලු languages encode."},
+    {q:"BCD ගේ සම්පූර්ණ නාමය?",o:["Binary Coded Decimal","Bit Code Data","Binary Coded Data","Basic Computer Decimal"],a:0,e:"BCD = Binary Coded Decimal. Decimal digits binary ලෙස represent."},
+    {q:"1 Gigabyte (GB) = ?",o:["1024 MB","1000 KB","1024 KB","1000 MB"],a:0,e:"1 GB = 1024 MB. 1 MB = 1024 KB. 1 KB = 1024 Bytes."},
+  ]},
+  {ic:"🗄️",t:"Database",en:"Database Basics",qs:[
+    {q:"Database (දත්ත සමුදාය) යනු?",o:["Programs collection","Organized data collection","Image collection","Network collection"],a:1,e:"Database = Systematic, organized data collection. Efficient store/retrieve."},
+    {q:"Database Table ගේ Row?",o:["Field","Record (Row)","Primary Key","Attribute"],a:1,e:"Row = Record. Column = Field/Attribute. Table = Records + Fields."},
+    {q:"Database Table ගේ Column?",o:["Record","Row","Field (Column)","Index"],a:2,e:"Column = Field. Table ගෙ attribute/property represent."},
+    {q:"Primary Key ගේ ලක්ෂණය?",o:["Duplicate allowed","NULL allowed","Unique, Not Null — record uniquely identify","Any value"],a:2,e:"Primary Key = Unique + Not Null. Table ගෙ ඒකෙකු Record uniquely identify."},
+    {q:"DBMS ගේ examples?",o:["MS Word, Google Docs","MS Access, MySQL, Oracle","MS Excel, Google Sheets","MS PowerPoint, Prezi"],a:1,e:"DBMS = Database Management System. MS Access, MySQL, Oracle, PostgreSQL."},
+  ]},
+  {ic:"📊",t:"Spreadsheet (MS Excel)",en:"Spreadsheets",qs:[
+    {q:"MS Excel ගොනු?",o:["Word Processing","Presentation","Database","Spreadsheet Software"],a:3,e:"MS Excel = Spreadsheet Software. Calculations, charts, data analysis."},
+    {q:"MS Excel ගේ file extension?",o:[".docx",".xlsx",".pptx",".accdb"],a:1,e:"MS Excel = .xlsx extension. (Workbook)"},
+    {q:"=SUM(A1:A5) ගේ ඉලක්කය?",o:["Average of A1:A5","Sum of A1:A5","Count of A1:A5","Maximum of A1:A5"],a:1,e:"=SUM() = selected range ගේ values add (එකතු) කිරීම."},
+    {q:"Cell B3 = ?",o:["Row B, Column 3","Column B, Row 3","Column 2, Row B","Row 3, Column 3"],a:1,e:"Cell address = Column Letter + Row Number. B3 = Column B, Row 3."},
+    {q:"=AVERAGE(C1:C10) ගේ ඉලක්කය?",o:["Sum","Count","Average (mean)","Maximum"],a:2,e:"=AVERAGE() = range ගේ arithmetic mean (average) calculate."},
+    {q:"Chart/Graph create කිරීම Spreadsheet ගෙ ලාභය?",o:["Data delete","Data visually represent — trends clear","Data encrypt","Data compress"],a:1,e:"Charts = Data visually present. Bar, Line, Pie charts → trends, patterns easy identify."},
+  ]},
+  {ic:"📝",t:"Word Processing (Advanced)",en:"Word Processing Advanced",qs:[
+    {q:"Mail Merge ගේ ඉලක්කය?",o:["Data compress","Bulk letters create using data source","Spell check","Word count"],a:1,e:"Mail Merge = Database/Spreadsheet ගෙ data use කර bulk letters/envelopes generate."},
+    {q:"Find & Replace shortcut (MS Word)?",o:["Ctrl+F","Ctrl+H","Ctrl+G","Ctrl+R"],a:1,e:"Ctrl+H = Find & Replace. Ctrl+F = Find only."},
+    {q:"Table insert shortcut MS Word ගෙ?",o:["Insert > Table menu","Ctrl+T","File > Table","Format > Table"],a:0,e:"Insert tab → Table → select grid/Insert Table dialog. Ctrl+T = simple table insert."},
+    {q:"Spelling & Grammar check shortcut?",o:["F5","F7","F10","F12"],a:1,e:"F7 = Spelling & Grammar check in MS Word."},
+    {q:"Page Orientation ගේ options?",o:["Landscape only","Portrait only","Portrait or Landscape","Square"],a:2,e:"Page Orientation = Portrait (vertical, tall) or Landscape (horizontal, wide)."},
+  ]},
+],
+
+// ══════════════ GRADE 9 ══════════════
+9:[
+  {ic:"🖼️",t:"Presentation (MS PowerPoint)",en:"Presentations",qs:[
+    {q:"MS PowerPoint ගොනු?",o:["Word Processing","Database","Spreadsheet","Presentation Software"],a:3,e:"MS PowerPoint = Presentation Software. Slides create."},
+    {q:"MS PowerPoint file extension?",o:[".docx",".xlsx",".pptx",".accdb"],a:2,e:"MS PowerPoint = .pptx extension."},
+    {q:"Slide Show ආරම්භ keyboard shortcut?",o:["F1","F5","F10","F12"],a:1,e:"F5 = Slide Show ආරම්භ (beginning). Shift+F5 = current slide ගෙ start."},
+    {q:"Slide Transition ගේ ඉලක්කය?",o:["Text animations","Slide change effects","Background change","Font change"],a:1,e:"Slide Transition = Slides ගෙ switch (change) effect. Fade, Push, Wipe ආදිය."},
+    {q:"Animation MS PowerPoint ගෙ?",o:["Slide transition","Object animations within slide","Background color","Font size"],a:1,e:"Animation = Slide ගෙ objects (text, images) ගෙ appear/move effects."},
+    {q:"Presentation ගේ design principles?",o:["Full text, small font","Clear, concise, visual content, readable font","Maximum animations","No images"],a:1,e:"Good Presentation = Clear content, readable fonts, minimal text, good visuals, limited animations."},
+  ]},
+  {ic:"💾",t:"Secondary Storage",en:"Secondary Storage Devices",qs:[
+    {q:"Secondary Storage ගේ ස්වභාවය?",o:["Volatile (power off = data lost)","Non-volatile (data permanent)","Primary storage","Cache memory"],a:1,e:"Secondary Storage = Non-volatile. Power off = data retained. HDD, SSD, USB, CD/DVD."},
+    {q:"Magnetic Storage examples?",o:["CD, DVD, Blu-ray","USB Flash Drive","Hard Disk Drive (HDD), Magnetic Tape","RAM, ROM"],a:2,e:"Magnetic Storage = HDD, Magnetic Tape. Magnetized surfaces use."},
+    {q:"Optical Storage examples?",o:["HDD, Magnetic Tape","CD, DVD, Blu-ray","Flash Drive, SSD","RAM, ROM"],a:1,e:"Optical Storage = CD, DVD, Blu-ray. Laser light read/write."},
+    {q:"Flash Memory examples?",o:["HDD, Magnetic Tape","CD, DVD","USB Flash Drive, SSD, Memory Card","RAM, ROM"],a:2,e:"Flash Memory = USB Flash Drive, SSD, SD Cards. No moving parts, fast."},
+    {q:"SSD vs HDD ගේ ප්‍රධාන වෙනස?",o:["SSD = moving parts; HDD = no moving parts","HDD = moving platters; SSD = no moving parts (flash)","Same speed","HDD faster"],a:1,e:"SSD = Solid State Drive (flash memory, no moving parts). HDD = moving magnetic platters. SSD faster."},
+    {q:"1 Terabyte (TB) = ?",o:["1024 GB","1000 MB","1024 MB","1000 GB"],a:0,e:"1 TB = 1024 GB. (Terabyte = tera = 2⁴⁰ bytes)"},
+  ]},
+  {ic:"🧮",t:"Computer Architecture",en:"Computer Architecture",qs:[
+    {q:"ALU ගේ සම්පූර්ණ නාමය?",o:["Applied Logic Unit","Arithmetic Logic Unit","Advanced Level Unit","Automated Language Unit"],a:1,e:"ALU = Arithmetic Logic Unit. CPU ගෙ arithmetic + logic operations perform."},
+    {q:"Control Unit (CU) ගේ function?",o:["Arithmetic calculations","Fetch, decode, execute instructions control","Store data","Network manage"],a:1,e:"Control Unit = Instructions fetch, decode, execute coordinate. CPU ගෙ 'director'."},
+    {q:"Registers ගේ function?",o:["Permanent storage","CPU ගෙ temporary fast storage (ultra-fast)","Network buffer","Display buffer"],a:1,e:"Registers = CPU ගෙ fastest, smallest memory. Currently processing data hold."},
+    {q:"RAM ගේ ස්වභාවය?",o:["Non-volatile (permanent)","Volatile (power off = data lost)","Read-only","Write-only"],a:1,e:"RAM = Random Access Memory. Volatile. Power off = data lost. Active program data."},
+    {q:"ROM ගේ ස්වභාවය?",o:["Volatile","Temporary","Read-Only, Non-volatile (permanent)","Write-Only"],a:2,e:"ROM = Read Only Memory. Non-volatile. BIOS/firmware store. Power off = data safe."},
+    {q:"CPU Speed measure unit?",o:["Bytes","GHz (Gigahertz)","GB","Mbps"],a:1,e:"CPU Speed = GHz (Gigahertz). eg: 3.5 GHz = per second 3.5 billion cycles."},
+  ]},
+  {ic:"🔐",t:"ICT ආරක්ෂාව සහ윤리",en:"ICT Security & Ethics",qs:[
+    {q:"Computer Virus ගේ ස්වභාවය?",o:["Useful program","Malicious program — self-replicate, damage","OS component","Antivirus"],a:1,e:"Computer Virus = Malicious software. Files attach, self-replicate, damage system."},
+    {q:"Strong Password ගේ ලක්ෂණ?",o:["Short, simple","Only numbers","Uppercase+Lowercase+Numbers+Symbols, long","Real name"],a:2,e:"Strong Password = Long + Mixed case + Numbers + Special characters. Personal info avoid."},
+    {q:"Copyright ගේ ඉලක්කය?",o:["Virus remove","Creator ගේ intellectual property protect","Network protect","Password protect"],a:1,e:"Copyright = Original creator ගේ Intellectual Property rights protect. Permission without use = illegal."},
+    {q:"Plagiarism යනු?",o:["Data backup","Others' work as own present (without credit)","File compress","Network attack"],a:1,e:"Plagiarism = Others ගේ original work (text, ideas) ගෙ permission/credit නොමැතිව use."},
+    {q:"Cyberbullying prevent කළ හැකි ක්‍රම?",o:["Personal info share more","Ignore + Block + Report + Adult inform","Strange links click","Respond aggressively"],a:1,e:"Cyberbullying handle: Ignore, Block, Report, Parents/Teacher inform. Personal info share not."},
+  ]},
+  {ic:"💻",t:"Programming හැදින්වීම",en:"Introduction to Programming",qs:[
+    {q:"Program (Computer Program) යනු?",o:["Hardware component","Set of instructions for computer to execute","Network cable","Storage device"],a:1,e:"Program = Computer ලවා task perform කිරීමට instructions ගේ sequence."},
+    {q:"Programming Language examples?",o:["HTML, CSS, JavaScript, Python, Java, C++","Windows, Linux, macOS","Chrome, Firefox, Edge","Excel, Word, PowerPoint"],a:0,e:"Programming Languages: Python, Java, C++, JavaScript, Pascal ආදිය."},
+    {q:"High-level Language ගේ ලක්ෂණය?",o:["Machine code only","Human-readable, easy to write","Binary 0,1 only","Hardware-specific"],a:1,e:"High-level Language = Human-readable (English-like). Python, Java, C++. Compiler/Interpreter needed."},
+    {q:"Compiler ගේ function?",o:["Run programs","High-level language → Machine code convert (whole file)","Write programs","Debug programs"],a:1,e:"Compiler = Entire source code → machine code convert. .exe file create. (C, C++, Java)"},
+    {q:"Interpreter ගේ function?",o:["Compile entire file","Line-by-line execute (no compilation)","Debug programs","Store programs"],a:1,e:"Interpreter = Code line-by-line translate and execute. (Python, JavaScript, BASIC)"},
+  ]},
+],
+
+// ══════════════ GRADE 10 ══════════════
+10:[
+  {ic:"💡",t:"1. ICT ගේ ස්ථානය",en:"Unit 1: Place of Computer in ICT",qs:[
+    {q:"ICT ගේ definition?",o:["Only internet technology","Technology for information create, process, store, communicate","Hardware only","Software only"],a:1,e:"ICT = Information create, process, store, communicate, access කිරීමේ technology."},
+    {q:"Data Processing ගේ steps?",o:["Input only","Data gathering → Validation → Processing → Output → Storage","Output only","Store only"],a:1,e:"Data processing: Gathering → Validation → Processing → Output → Storage."},
+    {q:"Computer Generations ගේ technology evolution?",o:["Vacuum Tubes → ICs → Transistors → Microprocessors","Vacuum Tubes → Transistors → ICs → Microprocessors","Microprocessors → ICs → Transistors → Vacuum Tubes","Random order"],a:1,e:"1G=Vacuum Tubes → 2G=Transistors → 3G=ICs → 4G=Microprocessors (VLSI/ULSI)."},
+    {q:"VLSI ගේ සම්පූර්ණ නාමය?",o:["Very Large Scale Integration","Variable Logic System Integration","Very Low Speed Integration","Variable Level System Interface"],a:0,e:"VLSI = Very Large Scale Integration. Millions of transistors in single chip."},
+  ]},
+  {ic:"🖥️",t:"2. Computer Hardware",en:"Unit 2: Computer Hardware",qs:[
+    {q:"Mainframe Computer ගේ ලක්ෂණය?",o:["Personal use, small","Large organizations, high capacity, expensive","Pocket-size","Gaming only"],a:1,e:"Mainframe = Large, powerful, expensive. Banks, Airlines, Government agencies. Multiple users."},
+    {q:"Super Computer ගේ ලක්ෂණය?",o:["Home use","Fastest, most powerful — scientific research, weather forecasting","School use","Office use"],a:1,e:"Super Computer = World's fastest. Weather forecasting, Nuclear research, AI training."},
+    {q:"NIC ගේ සම්පූර්ණ නාමය?",o:["Network Internet Card","Network Interface Card","Network Instruction Circuit","Node Interface Card"],a:1,e:"NIC = Network Interface Card. Computer ගෙ network connect කිරීමට."},
+    {q:"USB ගේ සම්පූර්ණ නාමය?",o:["Universal Serial Bus","Unique System Bus","Universal System Bridge","Unified Serial Buffer"],a:0,e:"USB = Universal Serial Bus. Devices connect කිරීමේ standard interface."},
+    {q:"PS/2 Port ගේ function?",o:["Network connect","USB devices connect","Older Keyboard/Mouse connect","Monitor connect"],a:2,e:"PS/2 Port = Older Keyboard (purple) and Mouse (green) ports. Modern computers USB use."},
+  ]},
+  {ic:"🔢",t:"3. Data Representation",en:"Unit 3: Data Representation",qs:[
+    {q:"Binary Addition: 1 + 1 = ?",o:["10 (binary)","11 (binary)","2","1"],a:0,e:"1+1 = 10 (binary). (sum=0, carry=1). 1+1+1=11 (binary)."},
+    {q:"Hexadecimal 'A' = Decimal?",o:["8","9","10","11"],a:2,e:"Hex A = Decimal 10. B=11, C=12, D=13, E=14, F=15."},
+    {q:"Binary 1100 → Decimal?",o:["10","11","12","13"],a:2,e:"1100₂ = 8+4+0+0 = 12₁₀."},
+    {q:"Decimal 25 → Binary?",o:["11001","10011","11010","10101"],a:0,e:"25 = 16+8+1 = 11001₂."},
+    {q:"ASCII 'A' = Decimal?",o:["97","65","48","90"],a:1,e:"ASCII 'A' = 65. 'a' = 97. '0' = 48."},
+    {q:"1 Terabyte = ?",o:["1024 GB","1000 MB","1024 MB","1000 GB"],a:0,e:"1 TB = 1024 GB. Storage hierarchy: Bit < Byte < KB < MB < GB < TB."},
+  ]},
+  {ic:"⚡",t:"4. Logic Gates",en:"Unit 4: Boolean Logic Gates",qs:[
+    {q:"AND gate: A=1, B=0 → Output?",o:["1","0","2","Undefined"],a:1,e:"AND = Both inputs 1 = output 1. 1 AND 0 = 0."},
+    {q:"OR gate: A=0, B=1 → Output?",o:["0","1","2","Undefined"],a:1,e:"OR = At least one input 1 = output 1. 0 OR 1 = 1."},
+    {q:"NOT gate: A=1 → Output?",o:["1","0","2","Undefined"],a:1,e:"NOT = Invert input. NOT 1 = 0. NOT 0 = 1."},
+    {q:"NAND gate = ?",o:["NOT of AND","NOT of OR","AND of NOT","OR of NOT"],a:0,e:"NAND = NOT AND. NAND is Universal gate (any circuit build possible)."},
+    {q:"XOR gate: A=1, B=1 → Output?",o:["1","0","2","Undefined"],a:1,e:"XOR = Same inputs = 0. Different inputs = 1. 1 XOR 1 = 0."},
+    {q:"NOR gate truth table: A=0, B=0 → Output?",o:["0","1","2","Undefined"],a:1,e:"NOR = NOT OR. 0 OR 0 = 0. NOT 0 = 1."},
+    {q:"Boolean expression A+B ගේ gate?",o:["AND gate","OR gate","NOT gate","XOR gate"],a:1,e:"A+B = OR gate. A·B (A.B) = AND gate."},
+  ]},
+  {ic:"🖥️",t:"5. Operating Systems",en:"Unit 5: Operating Systems",qs:[
+    {q:"OS ගේ main function?",o:["Games play","Hardware+Software resource management","Internet browse","Documents create"],a:1,e:"OS = Hardware+Software resources manage. User↔Computer interface."},
+    {q:"File System ගේ examples?",o:["TCP, UDP, HTTP","NTFS, FAT32, ext4","RGB, CMYK","ASCII, Unicode"],a:1,e:"File Systems: NTFS (Windows), FAT32 (older/USB), ext4 (Linux)."},
+    {q:"Virtual Memory ගේ function?",o:["Actual RAM increase","HDD/SSD space RAM ලෙස use — RAM shortage solve","GPU memory","CPU cache"],a:1,e:"Virtual Memory = Secondary storage part RAM ලෙස use. More programs run simultaneously."},
+    {q:"Process ගේ States?",o:["New, Ready, Running, Blocked, Terminated","Open, Close, Save, Delete","Start, Stop, Pause, Resume","Create, Read, Update, Delete"],a:0,e:"Process States: New → Ready → Running ↔ Blocked → Terminated."},
+  ]},
+  {ic:"📝",t:"6. Word Processing",en:"Unit 6: Word Processing",qs:[
+    {q:"Mail Merge ගේ data source?",o:["Any audio file","Database or Spreadsheet","Video file","Image file"],a:1,e:"Mail Merge = Database (Access) or Spreadsheet (Excel) data use. Bulk letters generate."},
+    {q:"Page Break insert shortcut?",o:["Ctrl+Enter","Ctrl+B","Ctrl+P","Ctrl+N"],a:0,e:"Ctrl+Enter = Manual Page Break insert. New page ආරම්භ."},
+    {q:"Document ගෙ Header & Footer?",o:["Main content area","Top (header) / Bottom (footer) — page number, title","Side margins","Table cells"],a:1,e:"Header = Page top area. Footer = Page bottom area. Page numbers, document title."},
+    {q:"Columns format ගේ ඉලක්කය?",o:["Table create","Newsletter-style multi-column text layout","Border add","Background color"],a:1,e:"Columns = Text multiple columns arrange. Newspapers, newsletters style."},
+  ]},
+  {ic:"📊",t:"7. Spreadsheet",en:"Unit 7: Spreadsheets",qs:[
+    {q:"Absolute Reference $A$1 ගේ ලක්ෂණය?",o:["Currency format","Formula copy/move = address FIXED","Error marker","Dynamic reference"],a:1,e:"$A$1 = Absolute Reference. $ = fixed. Formula copy = address change නොවේ."},
+    {q:"Relative Reference A1 ගේ ලක්ෂණය?",o:["Fixed address","Formula copy = address adjusts automatically","Currency","Error"],a:1,e:"A1 = Relative Reference. Formula copy = row/column automatically adjust."},
+    {q:"=IF(A1>50,'Pass','Fail') — A1=75 → result?",o:["Fail","Pass","Error","75"],a:1,e:"75 > 50 = TRUE → 'Pass'. IF(condition, true value, false value)."},
+    {q:"=MAX(B1:B10) ගේ ඉලක්කය?",o:["Minimum value","Sum","Average","Maximum value"],a:3,e:"=MAX() = range ගේ largest (maximum) value return."},
+    {q:"=COUNT(A1:A20) ගේ ඉලක්කය?",o:["Sum all values","Count numeric cells","Count all cells","Average"],a:1,e:"=COUNT() = range ගෙ numeric values ඇති cells ගණන count."},
+  ]},
+  {ic:"🎯",t:"8. Presentations",en:"Unit 8: Electronic Presentations",qs:[
+    {q:"PowerPoint .pptx ගෙ Slide Layouts?",o:["One layout only","Multiple layouts: Title, Content, Blank, etc.","No layouts","Custom code required"],a:1,e:"Slide Layouts = pre-designed layouts. Title Slide, Title+Content, Blank, Two Content ආදිය."},
+    {q:"Slide Master ගේ ඉලක්කය?",o:["Single slide design","All slides ගෙ consistent theme/format control","Video insert","Sound add"],a:1,e:"Slide Master = All slides ගෙ global format (font, color, background) control. Consistency."},
+    {q:"Handout MS PowerPoint ගෙ?",o:["Digital slide only","Printed version of slides for audience","Audio file","Video export"],a:1,e:"Handout = Audience ලවා print කළ slides (2,4,6,9 per page)."},
+  ]},
+  {ic:"🗄️",t:"9. Database",en:"Unit 9: Database",qs:[
+    {q:"Relational Database ගේ ලක්ෂණය?",o:["Single table only","Tables relate using keys — multiple related tables","No keys","No structure"],a:1,e:"Relational Database = Multiple tables + relationships (Primary Key, Foreign Key)."},
+    {q:"Foreign Key ගේ ඉලක්කය?",o:["Record uniquely identify","Other table ගේ Primary Key reference — tables relate","Password store","Index create"],a:1,e:"Foreign Key = Other table ගේ Primary Key reference. Tables ගෙ relationship establish."},
+    {q:"SQL SELECT statement?",o:["Records insert","Records retrieve/query","Records delete","Records update"],a:1,e:"SELECT = Data retrieve. SELECT * FROM table; SELECT column FROM table WHERE condition;"},
+    {q:"Query ගේ ඉලක්කය?",o:["Data delete","Specific data retrieve based on criteria","Data backup","Table create"],a:1,e:"Query = Specific criteria based data retrieve. SQL WHERE clause use."},
+    {q:"Form (Database ගෙ) ගේ purpose?",o:["Data analyze","User-friendly interface for data entry and view","Report print","Table create"],a:1,e:"Form = User-friendly data input + view interface. Table direct edit ට alternative."},
+  ]},
+],
+
+// ══════════════ GRADE 11 ══════════════
+11:[
+  {ic:"⚙️",t:"10. Programming",en:"Unit 10: Programming",qs:[
+    {q:"Algorithm ගේ characteristics?",o:["Random steps, infinite","Clear, finite, unambiguous, effective steps","One step only","No output"],a:1,e:"Algorithm ලක්ෂණ: Finiteness, Definiteness, Input, Output, Effectiveness."},
+    {q:"Flowchart Diamond shape?",o:["Process (Rectangle)","Start/End (Oval)","Decision (If/Else)","Input/Output (Parallelogram)"],a:2,e:"Diamond = Decision. Yes/No (True/False) branches. If-Else represent."},
+    {q:"Flowchart Oval/Terminator shape?",o:["Process","Decision","Start / End","Input/Output"],a:2,e:"Oval/Rounded Rectangle = Start/End (Terminator). Algorithm ගෙ ආරම්භය/නිමාව."},
+    {q:"Pseudocode ගේ ලක්ෂණය?",o:["Actual programming language","Specific programming language නොමැති, English-like algorithm describe","Machine code","Binary code"],a:1,e:"Pseudocode = Specific language syntax නොමැති. Algorithm describe. Easy read."},
+    {q:"Variable ගේ purpose?",o:["Code comment","Named memory location for temporary data store","Program terminate","Loop create"],a:1,e:"Variable = Named memory location. Program runtime data temporarily store."},
+    {q:"IF-ELSE structure ගේ purpose?",o:["Loop create","Condition based decision making","Function define","Array create"],a:1,e:"IF-ELSE = Selection structure. Condition True = one path. False = another path."},
+    {q:"FOR Loop vs WHILE Loop ගේ ලකෂය?",o:["Same","FOR = known iterations; WHILE = unknown iterations (condition based)","WHILE = known; FOR = unknown","Both same"],a:1,e:"FOR = known/fixed count iterate. WHILE = condition True = iterate, False = stop."},
+    {q:"Array ගේ purpose?",o:["Single value store","Same data type values collection store","Function define","Loop create"],a:1,e:"Array = Same data type values collection. Single variable name, index access."},
+    {q:"Function/Procedure ගේ purpose?",o:["Loop create","Reusable named code block define","Variable create","Decision make"],a:1,e:"Function = Reusable code block. Define once → call many times → code reuse."},
+    {q:"Machine Language ගේ ලක්ෂණය?",o:["Human-readable English","Binary (0,1) only — CPU directly understand","High-level","Interpreted"],a:1,e:"Machine Language = Binary (0,1). Lowest level. CPU directly execute. Human unreadable."},
+  ]},
+  {ic:"🔄",t:"11. Systems Development Life Cycle",en:"Unit 11: SDLC",qs:[
+    {q:"SDLC ගේ සම්පූර්ණ නාමය?",o:["Software Development Life Cycle","System Design Life Cycle","System Development Life Cycle","Software Design Life Cycle"],a:2,e:"SDLC = System Development Life Cycle."},
+    {q:"SDLC ගේ phases (correct order)?",o:["Design→Requirements→Implementation→Testing→Deploy→Maintain","Requirements→Design→Implementation→Testing→Deployment→Maintenance","Testing→Design→Requirements→Implement","Random order"],a:1,e:"SDLC: 1.Requirements 2.Design 3.Implementation 4.Testing 5.Deployment 6.Maintenance."},
+    {q:"Requirements gathering ගේ methods?",o:["Programming only","Interviews, Questionnaires, Observation, Document analysis","Testing only","Designing only"],a:1,e:"Requirements gather: Interviews, Questionnaires, Observation, Document review, Prototyping."},
+    {q:"Waterfall Model ගේ ලක්ෂණය?",o:["Iterative/repetitive","Sequential/linear — each phase complete before next","Random phases","Overlapping phases"],a:1,e:"Waterfall = Sequential. Each phase complete → next start. Go-back = difficult."},
+    {q:"Iterative/Agile Model ගේ ලක්ෂණය?",o:["Sequential, one direction","Repeated cycles/sprints — flexibility, frequent delivery","No testing","No requirements"],a:1,e:"Agile/Iterative = Repeated short cycles (sprints). Flexible, customer feedback based."},
+    {q:"Testing Phase ගේ types?",o:["Design testing","Unit, Integration, System, User Acceptance Testing","Requirement testing","Maintenance testing"],a:1,e:"Testing types: Unit Test, Integration Test, System Test, User Acceptance Test (UAT)."},
+  ]},
+  {ic:"🌐",t:"12. Internet & Email",en:"Unit 12: Internet & Email",qs:[
+    {q:"IP Address ගේ purpose?",o:["Data encrypt","Network device uniquely identify","File compress","Password store"],a:1,e:"IP Address = Network ගෙ device uniquely identify numerical address. (eg: 192.168.1.1)"},
+    {q:"DNS ගේ purpose?",o:["Data encrypt","Domain names → IP addresses translate","Email send","Files store"],a:1,e:"DNS = Domain Name System. google.com → 142.250.x.x IP translate."},
+    {q:"HTTP vs HTTPS ගේ වෙනස?",o:["HTTP secure; HTTPS not","HTTP = plain text; HTTPS = SSL/TLS encrypted (secure)","Same","HTTPS slow only"],a:1,e:"HTTP = unencrypted. HTTPS = SSL/TLS encryption. Passwords, credit cards safe transfer."},
+    {q:"Email ගෙ CC ගේ meaning?",o:["Carbon Copy — others receive copy of email","Confidential Copy","Computer Copy","Create Copy"],a:0,e:"CC = Carbon Copy. Multiple recipients email receive. All can see who else received."},
+    {q:"Email BCC ගේ meaning?",o:["Blind Carbon Copy — hidden recipients","Basic Carbon Copy","Backup CC","Big Carbon Copy"],a:0,e:"BCC = Blind Carbon Copy. Other recipients ලවා BCC recipients ගේ address see නොවේ."},
+    {q:"FTP ගේ purpose?",o:["Email send","Files transfer between computers over network","Web browse","Chat"],a:1,e:"FTP = File Transfer Protocol. Internet ගෙ files upload/download."},
+    {q:"Cloud Computing ගේ ලක්ෂණය?",o:["Local computer storage only","Internet over remote servers — anywhere access","Offline only","Hardware dependent"],a:1,e:"Cloud Computing = Remote servers (Internet) ගෙ storage, computing. Anywhere access. (Google Drive, AWS)"},
+  ]},
+  {ic:"🎬",t:"13. Multimedia",en:"Unit 13: Multimedia",qs:[
+    {q:"Multimedia Elements?",o:["Text only","Text, Images, Audio, Video, Animation — combination","Images only","Audio only"],a:1,e:"Multimedia = Text + Images + Audio + Video + Animation ගෙ combination."},
+    {q:"Pixel ගේ definition?",o:["File format","Smallest element of a digital image","Audio unit","Video frame"],a:1,e:"Pixel = Picture Element. Digital image ගෙ smallest unit. Resolution = pixel count."},
+    {q:"Raster vs Vector ගේ ලකෂය?",o:["Same","Raster = pixel based (zoom = blur); Vector = math based (zoom = no blur)","Vector = pixelated","Raster = never blur"],a:1,e:"Raster (JPG, PNG) = pixels. Zoom = blur. Vector (SVG) = math. Zoom = no blur."},
+    {q:"Lossy vs Lossless compression?",o:["Same","Lossy = quality reduce (small file); Lossless = quality maintain","Lossy = better quality","Lossless = smaller file"],a:1,e:"Lossy (JPEG, MP3) = some data lose → smaller. Lossless (PNG, FLAC) = all data keep."},
+    {q:"Frame Rate (FPS) ගේ meaning?",o:["Image size","Frames Per Second — video smoothness","Audio quality","File size"],a:1,e:"FPS = Frames Per Second. Higher FPS = smoother video. 24fps (film), 60fps (gaming)."},
+  ]},
+  {ic:"🌍",t:"14. Web Designing",en:"Unit 14: Web Design",qs:[
+    {q:"HTML ගේ සම්පූර්ණ නාමය?",o:["HyperText Machine Language","HyperText Markup Language","High Transfer Markup Language","HyperText Making Language"],a:1,e:"HTML = HyperText Markup Language. Webpage structure define."},
+    {q:"<h1> tag ගේ purpose?",o:["Paragraph","Largest heading","Image insert","Link create"],a:1,e:"<h1> = Largest heading. <h2>,<h3>...<h6> smaller. SEO important."},
+    {q:"<a href='url'> tag ගේ purpose?",o:["Image insert","Hyperlink create (anchor tag)","Table create","Form create"],a:1,e:"<a href='url'> = Anchor tag. Hyperlink create. href = destination URL."},
+    {q:"<img src='file'> tag ගේ purpose?",o:["Hyperlink","Heading","Image insert","Table"],a:2,e:"<img src='image.jpg'> = Image insert. src = image source file."},
+    {q:"CSS ගේ purpose?",o:["Structure define","Style (design, colors, fonts) define","Images insert","Database connect"],a:1,e:"CSS = Cascading Style Sheets. HTML elements ගෙ visual style define."},
+    {q:"Static vs Dynamic Website?",o:["Same","Static = fixed content; Dynamic = database driven, changes","Dynamic = fixed; Static = changing","Both database"],a:1,e:"Static = Fixed HTML. Dynamic = Database, server-side code. Content changes (Facebook, E-commerce)."},
+    {q:"CMS ගේ examples?",o:["Chrome, Firefox, Edge","WordPress, Joomla, Drupal","MySQL, Oracle","Python, Java"],a:1,e:"CMS = Content Management System. WordPress, Joomla, Drupal. No coding knowledge needed."},
+  ]},
+  {ic:"⚖️",t:"15. ICT සහ සමාජය",en:"Unit 15: ICT in Society",qs:[
+    {q:"ICT in Healthcare — examples?",o:["Facebook","Telemedicine, MRI, CAT scanner, Electronic Health Records","YouTube","Google Maps"],a:1,e:"Healthcare ICT: Telemedicine, MRI, CAT scanner, Electronic Health Records, Monitoring systems."},
+    {q:"E-Commerce ගේ ලක්ෂණය?",o:["Physical store only","Internet ගෙ goods/services buy/sell","Email send","File share"],a:1,e:"E-Commerce = Electronic Commerce. Amazon, AliExpress, Daraz. Online shopping."},
+    {q:"Ergonomics ගේ ලක්ෂණය?",o:["Computer programming","Comfortable, safe workspace design — injury prevent","Network design","Database design"],a:1,e:"Ergonomics = Workplace design for human comfort, efficiency, safety. RSI (Repetitive Strain Injury) prevent."},
+    {q:"E-waste ගේ ලකෂය?",o:["Electronic waste — safe disposal important","E-mail waste","Excel waste","Electric bills"],a:0,e:"E-waste = Electronic waste (old computers, phones). Hazardous materials. Safe disposal important."},
+    {q:"Data Theft ගේ legal implication?",o:["Legal and encouraged","Illegal — Computer crime","No problem","Only ethical issue"],a:1,e:"Data Theft = Illegal. Computer Crimes Act ගෙ under criminal offence. Prosecution possible."},
+  ]},
+],
+
+// ══════════════ GRADE 12 ══════════════
+12:[
+  {ic:"💡",t:"1. ICT සංකල්ප",en:"Unit 1: Concepts of ICT",qs:[
+    {q:"Information ගේ quality characteristics?",o:["Large file size","Timeliness, Accuracy, Completeness, Relevance","Fast download","Colorful display"],a:1,e:"Quality Information: Timely, Accurate, Complete, Relevant, Consistent, Understandable."},
+    {q:"Big Data ගේ 3 V's?",o:["Volume, Value, Victory","Volume, Velocity, Variety","Vision, Value, Velocity","Volume, Virus, Variety"],a:1,e:"Big Data 3 V's = Volume (large), Velocity (fast), Variety (different types)."},
+    {q:"Data validation methods?",o:["Delete all data","Data type check, Presence check, Range check","Encrypt all data","Print all data"],a:1,e:"Validation: Data Type check, Presence check (not empty), Range check (within limits)."},
+    {q:"Batch processing ගේ ලකෂය?",o:["Real-time processing","Data collected → processed together at scheduled time","One record at a time","Continuous processing"],a:1,e:"Batch Processing = Data ගොනු කර scheduled time ගෙ process. Payroll, billing."},
+    {q:"Real-time processing ගේ example?",o:["Monthly payroll","ATM transaction, Air traffic control, Stock exchange","Yearly reports","Annual billing"],a:1,e:"Real-time = Immediate processing. ATM, Air traffic control, Online gaming, Sensor data."},
+    {q:"OMR ගේ සම්පූර්ණ නාමය?",o:["Online Memory Reader","Optical Mark Reader","Output Media Reader","Online Mark Recorder"],a:1,e:"OMR = Optical Mark Reader. MCQ answer sheets, surveys scan."},
+  ]},
+  {ic:"🔄",t:"2. Computer Evolution",en:"Unit 2: Evolution of Computers",qs:[
+    {q:"Von Neumann Architecture ගේ key concept?",o:["Parallel processing","Stored-program concept (program + data = same memory)","Cloud computing","Distributed computing"],a:1,e:"Von Neumann = Stored-program concept. Instructions + Data same memory store."},
+    {q:"Fetch-Execute Cycle ගේ steps?",o:["Write, Read, Delete","Fetch instruction → Decode → Execute → Write back","Input, Process, Output","Open, Close, Save"],a:1,e:"Fetch-Execute Cycle: 1.Fetch (memory ගෙ instruction get) 2.Decode 3.Execute 4.Write back."},
+    {q:"CPU ගේ components?",o:["RAM, ROM, HDD","ALU, Control Unit, Registers","Monitor, Keyboard, Mouse","NIC, Router, Switch"],a:1,e:"CPU = ALU (arithmetic/logic) + Control Unit + Registers."},
+    {q:"Moore's Law ගේ meaning?",o:["RAM doubles every year","Transistors per chip approximately every 2 years doubles","CPU speed constant","Hard disk doubles every 5 years"],a:1,e:"Moore's Law (Gordon Moore, 1965) = Transistors per chip ≈ every 2 years double."},
+    {q:"Parallel Computing ගේ ලකෂය?",o:["Single processor","Multiple processors simultaneously work — faster","Sequential processing","One task at a time"],a:1,e:"Parallel Computing = Multiple processors simultaneously process. Faster computation. Supercomputers."},
+  ]},
+  {ic:"🔢",t:"3. Data Representation",en:"Unit 3: Data Representation",qs:[
+    {q:"Two's Complement ගේ purpose?",o:["Positive numbers only","Signed negative integers represent (computer subtraction)","Images represent","Text represent"],a:1,e:"Two's Complement = Negative numbers binary represent. CPU subtraction use."},
+    {q:"Two's Complement of 0110?",o:["1010","1001","1100","0110"],a:0,e:"Two's complement: 1. Invert bits: 0110 → 1001. 2. Add 1: 1001+1 = 1010."},
+    {q:"Floating Point representation ගේ purpose?",o:["Integer only","Very large/small real numbers (decimals) represent","Text represent","Color represent"],a:1,e:"Floating Point = Real numbers (decimals) binary represent. Scientific notation based."},
+    {q:"RGB color model — R,G,B = ?",o:["Red, Gold, Black","Red, Green, Blue","Raw, Gray, Brown","Right, Good, Bright"],a:1,e:"RGB = Red, Green, Blue. Each channel 8-bit (0-255). 24-bit = True color (16.7M colors)."},
+    {q:"1's Complement of 1010?",o:["0101","1111","0000","1010"],a:0,e:"1's Complement = All bits flip. 1010 → 0101."},
+  ]},
+  {ic:"⚡",t:"4. Digital Logic Circuits",en:"Unit 4: Digital Logic Circuits",qs:[
+    {q:"De Morgan's First Theorem?",o:["(A+B)' = A'.B'","(A.B)' = A'+B'","A'' = A","A+A' = 1"],a:1,e:"De Morgan 1st: (A.B)' = A' + B'. NAND gate Boolean expression."},
+    {q:"De Morgan's Second Theorem?",o:["(A.B)' = A'+B'","(A+B)' = A'.B'","A+A' = 1","A.A' = 0"],a:1,e:"De Morgan 2nd: (A+B)' = A' . B'. NOR gate Boolean expression."},
+    {q:"Karnaugh Map (K-Map) ගේ purpose?",o:["Truth tables create","Boolean expressions simplify (minimize)","Logic circuits draw","Programs write"],a:1,e:"K-Map = Boolean expressions graphically simplify. SOP (Sum of Products) minimize."},
+    {q:"Half Adder outputs?",o:["Sum only","Sum and Carry","Carry only","Difference and Borrow"],a:1,e:"Half Adder = 2 inputs (A,B) → Sum + Carry. No carry-in input."},
+    {q:"Full Adder vs Half Adder?",o:["Same","Full Adder has 3 inputs (A,B + Carry-in); Half Adder has 2","Half Adder has 3 inputs","Full Adder has 2 inputs"],a:1,e:"Full Adder = 3 inputs: A, B, Carry-in → Sum + Carry-out. For multi-bit addition."},
+    {q:"NAND gate Universal gate ලෙස හැඳින්වෙන්නේ?",o:["Fastest gate","Any other gate (AND, OR, NOT, XOR) create possible using NAND only","Cheapest gate","Largest gate"],a:1,e:"NAND (and NOR) = Universal gates. Using NAND gates only — all logic gates implement possible."},
+  ]},
+  {ic:"💾",t:"5. Computer Operating System",en:"Unit 5: OS Advanced",qs:[
+    {q:"Deadlock ගේ ලකෂය?",o:["CPU overheating","Two+ processes mutually wait for resources → infinite block","RAM overflow","Network failure"],a:1,e:"Deadlock = Process A waits B ගෙ resource; B waits A ගෙ resource → circular wait, infinite block."},
+    {q:"Deadlock ගේ four conditions?",o:["Speed, Size, Cost, Power","Mutual Exclusion, Hold & Wait, No Preemption, Circular Wait","Input, Output, Process, Store","Read, Write, Execute, Delete"],a:1,e:"Deadlock conditions: Mutual Exclusion + Hold & Wait + No Preemption + Circular Wait."},
+    {q:"Process Scheduling ගේ purpose?",o:["Files delete","CPU fairly and efficiently distribute among processes","Network manage","Memory delete"],a:1,e:"Process Scheduling = CPU time ගෙ processes ගෙ fair/efficient allocation. FCFS, SJF, Round Robin."},
+    {q:"Paging ගේ purpose?",o:["Files delete","Memory fixed-size pages manage → fragmentation reduce","Data encrypt","Backup create"],a:1,e:"Paging = Memory ගෙ fixed-size 'pages' divide. External fragmentation eliminate."},
+    {q:"Thrashing ගේ ලකෂය?",o:["CPU overheating","Excessive page swapping → performance severely drop","RAM overflow","Network congestion"],a:1,e:"Thrashing = OS spends more time page swapping than executing processes. Performance collapse."},
+  ]},
+  {ic:"📡",t:"6. Data Communication & Networking",en:"Unit 6: Networking",qs:[
+    {q:"OSI Model ගේ layer ගණන?",o:["5","7","4","6"],a:1,e:"OSI Model = 7 Layers: Physical, Data Link, Network, Transport, Session, Presentation, Application."},
+    {q:"OSI Layer 3 (Network Layer) ගේ function?",o:["Physical transmission","Data framing","Routing, logical addressing (IP)","Application interface"],a:2,e:"Layer 3 = Network Layer. Routing + IP addressing. Router operate at this layer."},
+    {q:"TCP vs UDP ගේ ප්‍රධාන වෙනස?",o:["TCP faster; UDP reliable","TCP = reliable, connection-based; UDP = fast, unreliable, connectionless","Same","UDP reliable; TCP fast"],a:1,e:"TCP = reliable, ordered, connection-based. UDP = fast, no guarantee, connectionless."},
+    {q:"IP addressing IPv4 format?",o:["6 groups hex","4 octets decimal (eg: 192.168.1.1)","8 binary groups","Letters only"],a:1,e:"IPv4 = 4 decimal octets. eg: 192.168.1.1 (32-bit). Total ≈ 4.3 billion addresses."},
+    {q:"Subnet Mask ගේ purpose?",o:["Encrypt data","IP ගෙ Network portion vs Host portion identify","Speed increase","Data compress"],a:1,e:"Subnet Mask = IP address ගෙ Network ID vs Host ID portion identify. eg: 255.255.255.0"},
+    {q:"Network Topology types?",o:["Star only","Bus, Star, Ring, Mesh, Hybrid","Circle, Square, Triangle","LAN, MAN, WAN"],a:1,e:"Topologies: Bus, Star (most common), Ring, Mesh, Tree, Hybrid."},
+    {q:"Firewall ගේ purpose?",o:["Speed internet","Network unauthorized access filter/block","Store data","Print documents"],a:1,e:"Firewall = Network traffic monitor + filter. Unauthorized access block. Hardware/Software."},
+  ]},
+  {ic:"📋",t:"7. System Analysis & Design",en:"Unit 7: Systems Analysis & Design",qs:[
+    {q:"DFD ගේ සම්පූර්ණ නාමය?",o:["Data Flow Diagram","Database Flow Design","Digital File Diagram","Data File Document"],a:0,e:"DFD = Data Flow Diagram. System ගෙ data flow visually represent."},
+    {q:"Context Diagram (Level 0 DFD) ගේ ලකෂය?",o:["Detailed internal processes","Entire system = single process + external entities only","Database schema","Network diagram"],a:1,e:"Context Diagram = Entire system = one process bubble + external entities + data flows."},
+    {q:"DFD ගෙ 4 symbols?",o:["Circle, Square, Triangle, Line","Process, External Entity, Data Store, Data Flow","Input, Output, Process, Store","Create, Read, Update, Delete"],a:1,e:"DFD Symbols: Process (circle/rounded rect), External Entity (rectangle), Data Store (open rectangle), Data Flow (arrow)."},
+    {q:"SSADM ගේ සම්පූර්ණ නාමය?",o:["System Software Analysis and Design Methodology","Structured Systems Analysis and Design Method","Simple System Architecture Development Method","Standard Software Analysis and Design Model"],a:1,e:"SSADM = Structured Systems Analysis and Design Method."},
+    {q:"Feasibility Study ගේ types?",o:["Technical only","Technical, Economic, Legal, Operational, Schedule (TELOS)","Economic only","Time only"],a:1,e:"Feasibility: Technical, Economic, Legal, Operational, Schedule feasibility."},
+    {q:"User Acceptance Testing (UAT) ගේ purpose?",o:["Developer testing","End users test if system meets requirements","Security testing","Performance testing"],a:1,e:"UAT = Actual users system test → meets requirements? Final approval before deployment."},
+  ]},
+  {ic:"🗄️",t:"8. Database Management",en:"Unit 8: Database Management",qs:[
+    {q:"Normalization ගේ purpose?",o:["Database slow make","Redundancy reduce + integrity improve","Data delete","Data encrypt"],a:1,e:"Normalization = Data redundancy reduce + data integrity improve. 1NF, 2NF, 3NF."},
+    {q:"1NF requirement?",o:["No duplicate rows only","Atomic values (no repeating groups/sets in cells)","3 tables minimum","Foreign key required"],a:1,e:"1NF = First Normal Form. Each cell = atomic (single value). No repeating column groups."},
+    {q:"2NF requirement?",o:["1NF only","In 1NF + No partial dependencies on composite key","3 tables","All fields same type"],a:1,e:"2NF = In 1NF + Non-key attributes fully dependent on entire primary key."},
+    {q:"3NF requirement?",o:["1NF only","In 2NF + No transitive dependencies","No primary key","All columns same type"],a:1,e:"3NF = In 2NF + No transitive dependencies (non-key → non-key)."},
+    {q:"SQL JOIN ගේ purpose?",o:["Single table query","Multiple tables combine → data retrieve","Data delete","Data sort"],a:1,e:"SQL JOIN = Multiple tables relate + combined data retrieve."},
+    {q:"INNER JOIN ගේ ලකෂය?",o:["All rows from both tables","Only matching rows from both tables","All left table rows","All right table rows"],a:1,e:"INNER JOIN = Both tables ගෙ matching rows only return."},
+    {q:"Database Transaction ACID?",o:["Accuracy, Consistency, Integrity, Durability","Atomicity, Consistency, Isolation, Durability","Availability, Consistency, Integrity, Distribution","Atomicity, Completeness, Isolation, Data"],a:1,e:"ACID = Atomicity + Consistency + Isolation + Durability. Reliable transactions guarantee."},
+  ]},
+  {ic:"🐍",t:"9. Programming (Python)",en:"Unit 9: Programming with Python",qs:[
+    {q:"Python comment ලිවිය හැකි ආකාරය?",o:["// comment","/* comment */","# comment","-- comment"],a:2,e:"Python single-line comment = # (hash). eg: # This is a comment"},
+    {q:"Python list define?",o:["x = (1,2,3)","x = {1,2,3}","x = [1,2,3]","x = <1,2,3>"],a:2,e:"Python List = Square brackets []. Mutable. eg: x = [1, 2, 3]"},
+    {q:"Python tuple ගේ ලකෂය?",o:["Mutable (changeable)","Immutable (cannot change after create)","Same as list","Dictionary type"],a:1,e:"Python Tuple = () parentheses. Immutable. eg: t = (1, 2, 3). Cannot modify."},
+    {q:"Python dictionary define?",o:["d = [1,2,3]","d = {'key':'value'}","d = (1,2,3)","d = <1,2,3>"],a:1,e:"Python Dictionary = {} curly braces, key:value pairs. eg: d = {'name': 'Kamal', 'age': 15}"},
+    {q:"Python function define?",o:["function myFunc():","def myFunc():","func myFunc():","define myFunc():"],a:1,e:"Python function = def keyword. eg: def greet(name):"},
+    {q:"Python FOR loop?",o:["for i in range(5):","for(i=0;i<5;i++)","foreach i in 5:","loop i from 1 to 5:"],a:0,e:"Python FOR = for i in range(5): (i = 0,1,2,3,4 — 5 times iterate)"},
+    {q:"Python IF statement?",o:["if x > 10 {","if (x > 10):","if x > 10:","IF x > 10 THEN"],a:2,e:"Python IF: if condition: (colon, indent). No curly braces!"},
+    {q:"Python print()?",o:["echo('Hello')","printf('Hello')","print('Hello')","cout << 'Hello'"],a:2,e:"Python output = print(). eg: print('Hello, ලෝකය!')"},
+  ]},
+  {ic:"🌐",t:"10. Web Development",en:"Unit 10: Web Development",qs:[
+    {q:"CSS selector '#myId' ගේ ලකෂය?",o:["Class selector","ID selector","Tag/Element selector","Universal selector"],a:1,e:"# = ID selector. Unique element select. .className = class selector."},
+    {q:"CSS 'box model' components?",o:["Width, Height only","Content, Padding, Border, Margin","Color, Font, Size","Input, Output, Process"],a:1,e:"CSS Box Model = Content + Padding + Border + Margin. Every HTML element is a box."},
+    {q:"Responsive Web Design ගේ purpose?",o:["Faster loading","All screen sizes (mobile, tablet, desktop) properly display","Better security","More colorful"],a:1,e:"Responsive Design = CSS Media queries use. All devices screen sizes adapt."},
+    {q:"JavaScript ගේ primary purpose (web)?",o:["Page structure (HTML)","Page style (CSS)","Interactive client-side behavior","Server database"],a:2,e:"JavaScript = Client-side interactivity. Dynamic content, form validation, animations."},
+    {q:"HTML5 ගේ new features?",o:["Basic tags only","<video>, <audio>, <canvas>, Semantic tags (<header>, <nav>)","CSS only","No new features"],a:1,e:"HTML5 new: <video>, <audio>, <canvas>, Semantic elements (<header>, <nav>, <article>, <section>)."},
+  ]},
+  {ic:"🔌",t:"11. Internet of Things (IoT)",en:"Unit 11: Internet of Things",qs:[
+    {q:"IoT ගේ සම්පූර්ණ නාමය?",o:["Internet of Technology","Internet of Things","Interface of Technology","Integrated Online Technology"],a:1,e:"IoT = Internet of Things. Physical devices → internet connect → data share."},
+    {q:"IoT ගේ examples?",o:["Desktop computers only","Smart Fridge, Smart Watch, Smart Home, Industrial sensors","Printers only","Projectors only"],a:1,e:"IoT: Smart home (lights, AC), Wearables (smartwatch), Industrial sensors, Smart agriculture."},
+    {q:"IoT ගේ ප්‍රධාන challenge?",o:["Too fast","Security, Privacy vulnerabilities — devices often lack strong protection","Too slow","Too expensive"],a:1,e:"IoT challenges: Security (hacking risk), Privacy (data collection), Interoperability, Power consumption."},
+  ]},
+  {ic:"💼",t:"12. ICT in Business",en:"Unit 12: ICT in Business",qs:[
+    {q:"ERP ගේ සම්පූර්ණ නාමය?",o:["Electronic Resource Planning","Enterprise Resource Planning","Extended Resource Program","Electronic Reporting Platform"],a:1,e:"ERP = Enterprise Resource Planning. Business functions (Finance, HR, Supply chain) integrate."},
+    {q:"CRM ගේ සම්පූර්ණ නාමය?",o:["Customer Relation Module","Customer Relationship Management","Computer Resource Management","Central Relation Module"],a:1,e:"CRM = Customer Relationship Management. Customer data manage, sales track."},
+    {q:"E-Commerce ගේ types?",o:["B2B only","B2B, B2C, C2C, C2B","Physical stores only","Email commerce"],a:1,e:"E-Commerce types: B2B (Business-to-Business), B2C (Business-to-Consumer), C2C, C2B."},
+  ]},
+],
+
+// ══════════════ GRADE 13 ══════════════
+13:[
+  {ic:"📡",t:"6. Networks (Advanced)",en:"Unit 6: Advanced Networking",qs:[
+    {q:"IPv4 vs IPv6 ගේ ප්‍රධාන වෙනස?",o:["Same","IPv4=32-bit (≈4B addresses); IPv6=128-bit (≈340 undecillion addresses)","IPv6 slower","IPv4 more addresses"],a:1,e:"IPv4 = 32-bit. IPv6 = 128-bit. IPv4 address exhaustion solve → IPv6 introduced."},
+    {q:"CIDR notation /24 ගේ meaning?",o:["24 hosts only","First 24 bits = Network ID (256 addresses)","24 MB bandwidth","24 devices only"],a:1,e:"CIDR /24 = 24 bits Network + 8 bits Host = 256 addresses (254 usable). 255.255.255.0 mask."},
+    {q:"DNS Resolution process?",o:["Random search","Browser cache → OS cache → DNS Resolver → Root DNS → TLD DNS → Authoritative DNS","Direct to IP","Email server check"],a:1,e:"DNS Resolution: Browser cache → Local OS → Recursive Resolver → Root → TLD → Authoritative server."},
+    {q:"HTTPS SSL/TLS Handshake first step?",o:["Data transfer","Client Hello (TLS version + cipher suites send)","Server certificate","Key exchange"],a:1,e:"SSL Handshake: 1.Client Hello 2.Server Hello 3.Certificate 4.Key Exchange 5.Finished."},
+    {q:"NAT ගේ purpose?",o:["Data encrypt","Multiple private IPs share one public IP — IPv4 shortage solve","Speed increase","Bandwidth increase"],a:1,e:"NAT = Network Address Translation. Private network devices single public IP share."},
+    {q:"VPN ගේ purpose?",o:["Internet speed increase","Secure encrypted tunnel over public internet","Files store","Email send"],a:1,e:"VPN = Virtual Private Network. Encrypted tunnel. Remote access + privacy + geo-restriction bypass."},
+  ]},
+  {ic:"📋",t:"7. Systems Analysis (Advanced)",en:"Unit 7: Systems Analysis Advanced",qs:[
+    {q:"Level 1 DFD ගේ ලකෂය?",o:["Context diagram","Context diagram explode → main processes detail","Level 0 same","Database schema"],a:1,e:"Level 1 DFD = Context diagram ගෙ main process ගෙ explode → internal processes detail."},
+    {q:"Functional requirements ගේ examples?",o:["System response time","System must allow user login, generate reports, process payments","Color scheme","Hardware specs"],a:1,e:"Functional requirements = What system must DO. Login, reports, calculations, notifications."},
+    {q:"Non-functional requirements ගේ examples?",o:["Login feature","Report generation","System performance, security, reliability, scalability","Database queries"],a:2,e:"Non-functional = How system must PERFORM. Performance, Security, Usability, Reliability."},
+    {q:"Prototype ගේ purpose?",o:["Final product","Early model for user feedback → refine requirements","Data store","Network configure"],a:1,e:"Prototype = Early working model. User feedback get → requirements refine. Iterative approach."},
+    {q:"Agile Methodology ගේ ලකෂය?",o:["Sequential waterfall","Short sprints, continuous delivery, customer collaboration, flexibility","No testing","No documentation"],a:1,e:"Agile = Iterative sprints, customer collaboration, working software prioritize, change embrace."},
+  ]},
+  {ic:"🗄️",t:"8. Database (Advanced)",en:"Unit 8: Advanced Database",qs:[
+    {q:"SQL HAVING clause ගේ purpose?",o:["WHERE same","Filter grouped data (after GROUP BY) — aggregate functions use","Delete rows","Create tables"],a:1,e:"HAVING = GROUP BY ගෙ pasu filter. WHERE uses before group. HAVING uses after group."},
+    {q:"SQL GROUP BY ගේ purpose?",o:["Sort rows","Rows group + aggregate functions apply (SUM, COUNT, AVG per group)","Delete groups","Create groups"],a:1,e:"GROUP BY = Same values ඇති rows group. AVG, SUM, COUNT per group calculate."},
+    {q:"Database Index ගේ purpose?",o:["Data delete","Query speed improve (faster search)","Data encrypt","Data backup"],a:1,e:"Index = Database search speed improve. Primary key automatic. Extra columns manual create."},
+    {q:"Stored Procedure ගේ purpose?",o:["Table create","Pre-compiled SQL statements — reuse, performance, security","Data delete","Schema change"],a:1,e:"Stored Procedure = Pre-compiled SQL code block. Execute → fast. Security + reuse."},
+    {q:"NoSQL Database ගේ ලකෂය?",o:["Relational tables only","Non-relational, flexible schema — MongoDB, Cassandra, Redis","SQL only","Slow performance"],a:1,e:"NoSQL = Non-relational. Schema flexible. MongoDB (documents), Redis (key-value), Cassandra (columns)."},
+    {q:"Database Backup ගේ types?",o:["One type only","Full, Differential, Incremental backup","Delete backup","Online backup only"],a:1,e:"Backup types: Full (complete), Differential (since last full), Incremental (since last backup)."},
+  ]},
+  {ic:"🐍",t:"9. Programming Advanced (Python)",en:"Unit 9: Advanced Programming",qs:[
+    {q:"Python class define?",o:["class MyClass()","class: MyClass","define class MyClass","MyClass = class()"],a:0,e:"Python class: class MyClass: (or class MyClass(object):). OOP foundation."},
+    {q:"OOP ගේ 4 pillars?",o:["Input, Output, Process, Store","Encapsulation, Inheritance, Polymorphism, Abstraction","Class, Object, Method, Variable","Public, Private, Protected, Static"],a:1,e:"OOP 4 pillars: Encapsulation, Inheritance, Polymorphism, Abstraction."},
+    {q:"Python Exception Handling?",o:["try/catch","try/except/finally","error/handle","try/error"],a:1,e:"Python Exception: try: (code) except ExceptionType: (handle) finally: (always run)."},
+    {q:"Python File I/O — file open?",o:["open('file', 'r')","read('file')","file.open('file')","open_file('file')"],a:0,e:"Python file open: f = open('filename.txt', 'r') (r=read, w=write, a=append)."},
+    {q:"Algorithm Time Complexity — O(n²) ගේ meaning?",o:["Constant time","Logarithmic time","Linear time","Quadratic time — input double = 4x longer"],a:3,e:"O(n²) = Quadratic complexity. n double → time 4x. Bubble Sort, Selection Sort worst case."},
+    {q:"Binary Search ගේ time complexity?",o:["O(n²)","O(n)","O(log n)","O(1)"],a:2,e:"Binary Search = O(log n). Sorted array ගෙ half repeatedly divide. Very efficient."},
+  ]},
+  {ic:"🌐",t:"10. Web Development (Advanced)",en:"Unit 10: Advanced Web Dev",qs:[
+    {q:"Server-side vs Client-side scripting?",o:["Same","Client-side = browser execute (JS); Server-side = server execute (PHP, Python)","Client-side = server","Server-side = browser"],a:1,e:"Client-side = Browser execute (JavaScript). Server-side = Server execute (PHP, Python, Node.js)."},
+    {q:"REST API ගේ ලකෂය?",o:["Local only","HTTP methods (GET, POST, PUT, DELETE) use — web service standard","Email protocol","File format"],a:1,e:"REST API = RESTful web service. HTTP methods. JSON/XML data. Stateless. Web/Mobile apps integrate."},
+    {q:"JSON ගේ සම්පූර්ණ නාමය?",o:["JavaScript Object Notation","Java Serialized Object Name","JavaScript Online Notation","Joined Object Notation"],a:0,e:"JSON = JavaScript Object Notation. Data exchange format. {\"key\":\"value\"} structure."},
+    {q:"HTTPS ගෙ certificate issue කරන්නේ?",o:["Google","Certificate Authority (CA) — DigiCert, Let's Encrypt","Browser","ISP"],a:1,e:"SSL/TLS Certificate = Certificate Authority (CA) issue. DigiCert, Let's Encrypt, Comodo."},
+    {q:"Progressive Web App (PWA) ගේ ලකෂය?",o:["Native app only","Web app that works offline + push notifications + installable","Email app","Desktop only"],a:1,e:"PWA = Web app + native app features. Offline work, push notifications, installable. Service Workers use."},
+  ]},
+  {ic:"🔮",t:"12+13. ICT Future Trends",en:"New Trends & Future Directions",qs:[
+    {q:"Artificial Intelligence (AI) ගේ ලකෂය?",o:["Mechanical work only","Machines simulate human intelligence — learning, reasoning, problem solving","Hardware only","Internet browsing"],a:1,e:"AI = Machines human intelligence simulate. Machine Learning, Natural Language Processing, Computer Vision."},
+    {q:"Machine Learning ගේ types?",o:["One type only","Supervised, Unsupervised, Reinforcement Learning","Supervised only","Unsupervised only"],a:1,e:"ML types: Supervised (labeled data), Unsupervised (find patterns), Reinforcement (reward/punishment)."},
+    {q:"Deep Learning ගේ ලකෂය?",o:["Shallow learning","Neural Networks (multilayer) — complex patterns learn","Simple rules","Manual programming"],a:1,e:"Deep Learning = Multi-layer Neural Networks. Image recognition, NLP, self-driving cars."},
+    {q:"Blockchain ගේ ලකෂය?",o:["Centralized database","Decentralized, immutable distributed ledger — cryptocurrency, supply chain","Social network","Cloud storage"],a:1,e:"Blockchain = Decentralized, immutable ledger. Bitcoin, Ethereum. Supply chain, contracts."},
+    {q:"Augmented Reality (AR) ගේ ලකෂය?",o:["Fully virtual environment","Digital elements overlay on real world","VR same","Only gaming"],a:1,e:"AR = Real world + digital overlay. Pokémon GO, Instagram filters, Navigation apps."},
+    {q:"Quantum Computing ගේ ලකෂය?",o:["Faster classical computer","Qubits use — superposition, entanglement → exponentially faster for certain problems","Smaller CPU","Better graphics"],a:1,e:"Quantum Computing = Qubits (0+1 simultaneously). Cryptography, drug discovery, optimization."},
+    {q:"5G ගේ classical 4G ට වෙනස?",o:["Slower","Much faster speeds, lower latency, more devices simultaneously connect","Same speed","Less reliable"],a:1,e:"5G = 10-100x faster than 4G. <1ms latency. IoT, autonomous vehicles, Smart cities enable."},
+    {q:"Cybersecurity ගේ CIA Triad?",o:["Control, Integrity, Authority","Confidentiality, Integrity, Availability","Cryptography, Internet, Authentication","Computer, Information, Access"],a:1,e:"CIA Triad = Confidentiality (secret) + Integrity (accurate) + Availability (accessible)."},
+  ]},
+],
+
+}; // end DATA
+
+
+// ═══════════════════════════════
+// STATE
+// ═══════════════════════════════
+let S={grade:null,gc:null,ui:null,ut:null,qs:[],qi:0,score:0,answered:false,hist:[]};
+let CU=null;
+let authMode='login';
+
+// ═══════════════════════════════
+// FIREBASE INIT
+// ═══════════════════════════════
+window.addEventListener('fbReady',function(){
+  window._fbFns.onAuthStateChanged(window._fbAuth,function(user){
+    CU=user;
+    renderAuthUI();
+  });
+});
+
+// ═══════════════════════════════
+// AUTH UI
+// ═══════════════════════════════
+function renderAuthUI(){
+  var area=document.getElementById('tb-auth-area');
+  if(!area)return;
+  if(CU){
+    var initials=(CU.displayName||CU.email||'U').charAt(0).toUpperCase();
+    var uname=CU.displayName||CU.email.split('@')[0];
+    area.innerHTML='<div class="tb-user"><div class="tb-avatar">'+initials+'</div><div class="tb-uname">'+uname+'</div><button class="tb-signout" onclick="doSignOut()">Logout</button></div>';
+  } else {
+    area.innerHTML='<button class="login-btn" onclick="openAuth()">🔑 Login</button>';
+  }
+  var sa=document.getElementById('saveArea');
+  if(sa) sa.style.display=CU?'block':'none';
+}
+
+function openAuth(){
+  authMode='login';
+  renderModal();
+  document.getElementById('authModal').classList.remove('hidden');
+}
+function closeAuth(){
+  document.getElementById('authModal').classList.add('hidden');
+  clearAuthErr();
+}
+function toggleAuthMode(){
+  authMode=authMode==='login'?'register':'login';
+  renderModal();
+}
+function renderModal(){
+  document.getElementById('authTitle').textContent=authMode==='login'?'ගිණුමට ඇතුල් වන්න':'නව ගිණුමක් සාදන්න';
+  document.getElementById('authSub').textContent=authMode==='login'?'Quiz ලකුණු save + Leaderboard':'Email + Password ගෙ ලියාපදිංචි වන්න';
+  document.getElementById('nameGroup').style.display=authMode==='register'?'block':'none';
+  document.getElementById('authSubmit').textContent=authMode==='login'?'ඇතුල් වන්න':'ලියාපදිංචි වන්න';
+  var sw=document.getElementById('authSwitch');
+  if(authMode==='login'){
+    sw.innerHTML='ගිණුමක් නැද්ද? <span onclick="toggleAuthMode()">ලියාපදිංචි වන්න</span>';
+  } else {
+    sw.innerHTML='ගිණුමක් ඇද්ද? <span onclick="toggleAuthMode()">ඇතුල් වන්න</span>';
+  }
+  clearAuthErr();
+}
+function showAuthErr(msg){
+  var e=document.getElementById('authErr');
+  e.textContent=msg;
+  e.classList.add('show');
+}
+function clearAuthErr(){
+  var e=document.getElementById('authErr');
+  if(e) e.classList.remove('show');
+}
+
+async function authSubmit(){
+  if(!window._fbAuth){showAuthErr('Firebase සම්බන්ධ නැත. Console check කරන්න.');return;}
+  var email=document.getElementById('inp-email').value.trim();
+  var pass=document.getElementById('inp-pass').value;
+  var btn=document.getElementById('authSubmit');
+  if(!email||!pass){showAuthErr('Email සහ Password ඇතුල් කරන්න.');return;}
+  btn.disabled=true; btn.textContent='...';
+  try{
+    if(authMode==='register'){
+      var name=document.getElementById('inp-name').value.trim()||'Student';
+      var reg=await window._fbFns.createUserWithEmailAndPassword(window._fbAuth,email,pass);
+      await window._fbFns.updateProfile(reg.user,{displayName:name});
+      await window._fbFns.setDoc(
+        window._fbFns.doc(window._fbDb,'users',reg.user.uid),
+        {name:name,email:email,totalQuizzes:0,totalScore:0,bestScore:0,avgScore:0,createdAt:window._fbFns.serverTimestamp()}
+      );
+    } else {
+      await window._fbFns.signInWithEmailAndPassword(window._fbAuth,email,pass);
+    }
+    closeAuth();
+  } catch(err){
+    var msgs={
+      'auth/email-already-in-use':'Email දැනටමත් ලියාපදිංචිය.',
+      'auth/invalid-email':'Email format වැරදිය.',
+      'auth/weak-password':'Password අවම 6 characters.',
+      'auth/user-not-found':'ගිණුමක් නැත.',
+      'auth/wrong-password':'Password වැරදිය.',
+      'auth/invalid-credential':'Email හෝ Password වැරදිය.'
+    };
+    showAuthErr(msgs[err.code]||err.message);
+  }
+  btn.disabled=false;
+  btn.textContent=authMode==='login'?'ඇතුල් වන්න':'ලියාපදිංචි වන්න';
+}
+
+async function doSignOut(){
+  await window._fbFns.signOut(window._fbAuth);
+}
+
+// ═══════════════════════════════
+// SAVE SCORE
+// ═══════════════════════════════
+async function saveScore(){
+  if(!CU){openAuth();return;}
+  if(!window._fbDb){alert('Firebase සම්බන්ධ කිරීමේ දෝෂය - Console check කරන්න');return;}
+  var btn=document.getElementById('saveBtn');
+  btn.disabled=true; btn.textContent='⏳ Saving...';
+  try{
+    var tot=S.qs.length, sc=S.score, pct=Math.round((sc/tot)*100);
+    var grade=S.grade, unit=S.ut;
+    var ts=window._fbFns.serverTimestamp();
+    var uid=CU.uid;
+
+    // save result doc
+    var resultPath='results/'+uid+'/quizzes/'+Date.now();
+    await window._fbFns.setDoc(window._fbFns.doc(window._fbDb,resultPath),
+      {grade:grade,unit:unit,score:sc,total:tot,pct:pct,timestamp:ts});
+
+    // update user doc
+    var uRef=window._fbFns.doc(window._fbDb,'users',uid);
+    var uSnap=await window._fbFns.getDoc(uRef);
+    var d=uSnap.exists()?uSnap.data():{totalQuizzes:0,totalScore:0,bestScore:0};
+    var newTotal=(d.totalQuizzes||0)+1;
+    var newSum=(d.totalScore||0)+pct;
+    var newBest=Math.max(d.bestScore||0,pct);
+    await window._fbFns.setDoc(uRef,{
+      name:CU.displayName||'Student',
+      email:CU.email,
+      totalQuizzes:newTotal,
+      totalScore:newSum,
+      bestScore:newBest,
+      avgScore:Math.round(newSum/newTotal),
+      lastGrade:grade,
+      lastPlayed:ts
+    },{merge:true});
+
+    // global leaderboard
+    var lbRef=window._fbFns.doc(window._fbDb,'leaderboard',uid);
+    var lbSnap=await window._fbFns.getDoc(lbRef);
+    var lb=lbSnap.exists()?lbSnap.data():{totalQuizzes:0,bestScore:0};
+    await window._fbFns.setDoc(lbRef,{
+      uid:uid,
+      name:CU.displayName||'Student',
+      bestScore:Math.max(lb.bestScore||0,pct),
+      lastScore:pct,
+      lastGrade:grade,
+      lastUnit:unit,
+      totalQuizzes:(lb.totalQuizzes||0)+1,
+      updatedAt:ts
+    },{merge:true});
+
+    // per-grade leaderboard
+    var glbRef=window._fbFns.doc(window._fbDb,'leaderboard_g'+grade,uid);
+    var glbSnap=await window._fbFns.getDoc(glbRef);
+    var glb=glbSnap.exists()?glbSnap.data():{totalQuizzes:0,bestScore:0};
+    await window._fbFns.setDoc(glbRef,{
+      uid:uid,
+      name:CU.displayName||'Student',
+      bestScore:Math.max(glb.bestScore||0,pct),
+      lastScore:pct,
+      lastUnit:unit,
+      totalQuizzes:(glb.totalQuizzes||0)+1,
+      updatedAt:ts
+    },{merge:true});
+
+    document.getElementById('saveMsg').style.display='block';
+    btn.style.display='none';
+  } catch(err){
+    console.error(err);
+    btn.disabled=false;
+    btn.textContent='⚠ නැවත උත්සාහ';
+    alert('Save error: '+err.message);
+  }
+}
+
+// ═══════════════════════════════
+// LEADERBOARD
+// ═══════════════════════════════
+async function goLB(){
+  go('lb');
+  document.getElementById('myStats').style.display=CU?'block':'none';
+  if(CU) loadMyStats();
+  loadLB('all', document.querySelector('.lb-tab'));
+}
+
+async function loadMyStats(){
+  if(!CU||!window._fbDb)return;
+  try{
+    var uSnap=await window._fbFns.getDoc(window._fbFns.doc(window._fbDb,'users',CU.uid));
+    if(uSnap.exists()){
+      var d=uSnap.data();
+      document.getElementById('ms-total').textContent=d.totalQuizzes||0;
+      document.getElementById('ms-best').textContent=(d.bestScore||0)+'%';
+      document.getElementById('ms-avg').textContent=(d.avgScore||0)+'%';
+    }
+    var q=window._fbFns.query(
+      window._fbFns.collection(window._fbDb,'leaderboard'),
+      window._fbFns.orderBy('bestScore','desc'),
+      window._fbFns.limit(200)
+    );
+    var snap=await window._fbFns.getDocs(q);
+    var rank='-';
+    snap.docs.forEach(function(d,i){if(d.id===CU.uid)rank=i+1;});
+    document.getElementById('ms-rank').textContent='#'+rank;
+  } catch(e){console.log(e);}
+}
+
+async function loadLB(filter, tabEl){
+  document.querySelectorAll('.lb-tab').forEach(function(t){t.classList.remove('act');});
+  if(tabEl) tabEl.classList.add('act');
+  var list=document.getElementById('lbList');
+  list.innerHTML='<div class="lb-loading">⏳ Loading...</div>';
+  if(!window._fbDb){
+    list.innerHTML='<div class="lb-empty">⚠ Firebase සම්බන්ධ නැත - Console check කරන්න</div>';
+    return;
+  }
+  try{
+    var colName=filter==='all'?'leaderboard':'leaderboard_g'+filter;
+    var q=window._fbFns.query(
+      window._fbFns.collection(window._fbDb,colName),
+      window._fbFns.orderBy('bestScore','desc'),
+      window._fbFns.limit(50)
+    );
+    var snap=await window._fbFns.getDocs(q);
+    if(snap.empty){
+      list.innerHTML='<div class="lb-empty">🏁 තවම ප්‍රතිඵල නැත.<br>Quiz ගෙ හොඳ ලකුණු ගෙ Save කරන්න!</div>';
+      return;
+    }
+    var medals=['🥇','🥈','🥉'];
+    var rankCls=['gold','silver','bronze'];
+    var html='';
+    snap.docs.forEach(function(d,i){
+      var data=d.data();
+      var isMe=CU&&d.id===CU.uid;
+      var rk='';
+      if(i<3){ rk='<div class="lb-rank '+rankCls[i]+'">'+medals[i]+'</div>'; }
+      else { rk='<div class="lb-rank">'+(i+1)+'</div>'; }
+      var meTag=isMe?' <span style="font-size:10px;color:var(--blue)">(ඔබ)</span>':'';
+      html+='<div class="lb-row'+(isMe?' me':'')+'">'+rk;
+      html+='<div class="lb-info"><div class="lb-name">'+(data.name||'Student')+meTag+'</div>';
+      html+='<div class="lb-meta">Quizzes: '+(data.totalQuizzes||0)+' · Grade: '+(data.lastGrade||'-')+'</div></div>';
+      html+='<div class="lb-score">'+(data.bestScore||0)+'%</div></div>';
+    });
+    list.innerHTML=html;
+  } catch(e){
+    console.error(e);
+    var msg=e.code==='permission-denied'?'Firestore Security Rules configure කරන්න':e.message;
+    list.innerHTML='<div class="lb-empty">⚠ '+msg+'</div>';
+  }
+}
+
+// ═══════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════
+function go(scr){
+  document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');});
+  document.getElementById('s-'+scr).classList.add('active');
+  updateBC(scr);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function updateBC(scr){
+  var bc=document.getElementById('bc');
+  var h='<span class="bc-lnk" onclick="go(\'grade\')">ශ්‍රේණිය</span>';
+  if(scr==='grade'){
+    h='<span class="bc-lnk bc-cur">ශ්‍රේණිය</span>';
+  } else if(scr==='unit'){
+    h+='<span class="bc-sep">›</span><span class="bc-lnk bc-cur">ඒකක</span>';
+  } else if(scr==='lb'){
+    h+='<span class="bc-sep">›</span><span class="bc-lnk bc-cur">🏆 Leaderboard</span>';
+  } else {
+    h+='<span class="bc-sep">›</span><span class="bc-lnk" onclick="go(\'unit\')">ඒකක</span>';
+    h+='<span class="bc-sep">›</span><span class="bc-lnk bc-cur">'+(S.ut||'Quiz')+'</span>';
+  }
+  bc.innerHTML=h;
+}
+
+// ═══════════════════════════════
+// GRADE GRID
+// ═══════════════════════════════
+var gg=document.getElementById('gradeGrid');
+GM.forEach(function(gm){
+  var el=document.createElement('div');
+  el.className='gc';
+  el.style.setProperty('--gc-c',gm.c);
+  el.innerHTML='<div class="gc-bar"></div><div class="gc-em">'+gm.em+'</div><div class="gc-num">Grade '+gm.g+'</div><div class="gc-lb">'+gm.g+' ශ්‍රේණිය</div><div class="gc-bd">'+gm.bd+'</div>';
+  el.onclick=(function(g,c){return function(){pickGrade(g,c);};})(gm.g,gm.c);
+  gg.appendChild(el);
+});
+
+function pickGrade(g,c){
+  S.grade=g; S.gc=c;
+  document.getElementById('u-eye').textContent='Grade '+g+' — '+g+' ශ්‍රේණිය ICT නිර්දේශය';
+  buildUnits(g,c);
+  go('unit');
+}
+function buildUnits(g,c){
+  var ul=document.getElementById('unitList');
+  ul.innerHTML='';
+  DATA[g].forEach(function(u,i){
+    var el=document.createElement('div');
+    el.className='uc';
+    el.style.setProperty('--gc-c',c);
+    el.innerHTML='<div class="uc-ic">'+u.ic+'</div><div class="uc-info"><div class="uc-n">ඒකකය '+(i+1)+'</div><div class="uc-t">'+u.t+'</div><div class="uc-m">'+u.en+' · ප්‍රශ්න '+u.qs.length+'ක්</div></div><div class="uc-arr">›</div>';
+    el.onclick=(function(idx){return function(){startQuiz(idx);};})(i);
+    ul.appendChild(el);
+  });
+}
+
+// ═══════════════════════════════
+// QUIZ ENGINE
+// ═══════════════════════════════
+function startQuiz(ui){
+  var u=DATA[S.grade][ui];
+  S.ui=ui; S.ut=u.t; S.qs=u.qs.slice(); S.qi=0; S.score=0; S.answered=false; S.hist=[];
+  document.getElementById('q-title').textContent=u.t;
+  document.getElementById('q-sub').textContent='Grade '+S.grade+' · '+u.en;
+  go('quiz');
+  renderQ();
+}
+function renderQ(){
+  S.answered=false;
+  var tot=S.qs.length, qi=S.qi, qd=S.qs[qi];
+  var ltr=['A','B','C','D'];
+  document.getElementById('q-counter').textContent=(qi+1)+' / '+tot;
+  document.getElementById('progBar').style.width=((qi/tot)*100)+'%';
+  var optsHtml='';
+  qd.o.forEach(function(o,i){
+    optsHtml+='<button class="opt" id="op'+i+'" onclick="pick('+i+')"><div class="opt-l">'+ltr[i]+'</div><div>'+o+'</div></button>';
+  });
+  var nbtxt=qi+1<tot?'ඊළඟ ප්‍රශ්නය →':'🏆 ප්‍රතිඵල';
+  document.getElementById('qArea').innerHTML=
+    '<div class="qc"><div class="qc-top"><div class="qc-badge">Q'+(qi+1)+'</div><div class="qc-txt">'+qd.q+'</div></div>'+
+    '<div class="opts" id="opts">'+optsHtml+'</div>'+
+    '<div class="fb" id="fb"></div></div>'+
+    '<button class="nb" id="nb" onclick="nextQ()">'+nbtxt+'</button>';
+}
+function pick(ch){
+  if(S.answered)return;
+  S.answered=true;
+  var qd=S.qs[S.qi], cor=qd.a, ok=(ch===cor);
+  if(ok) S.score++;
+  S.hist.push({q:qd.q,o:qd.o,cor:cor,ch:ch,e:qd.e,ok:ok});
+  document.querySelectorAll('.opt').forEach(function(b){b.classList.add('lk');});
+  if(ok){
+    document.getElementById('op'+ch).classList.add('cor');
+  } else {
+    document.getElementById('op'+ch).classList.add('wrg');
+    document.getElementById('op'+cor).classList.add('rev');
+  }
+  var fb=document.getElementById('fb');
+  fb.className='fb show '+(ok?'ok':'fail');
+  fb.innerHTML='<div class="fb-lbl">'+(ok?'✓ නිවැරදිය!':'✗ වැරදිය')+'</div>'+qd.e;
+  document.getElementById('nb').classList.add('show');
+}
+function nextQ(){ S.qi++; if(S.qi>=S.qs.length){showResults();}else{renderQ();} }
+function restartSame(){ startQuiz(S.ui); }
+
+// ═══════════════════════════════
+// RESULTS
+// ═══════════════════════════════
+function showResults(){
+  var tot=S.qs.length, sc=S.score, pct=Math.round((sc/tot)*100);
+  var cls=pct>=70?'ex':pct>=40?'gd':'pr';
+  var em=pct===100?'🏆':pct>=70?'🌟':pct>=40?'👍':'📚';
+  var msgs={ex:'ඉතා හොඳ! ශ්‍රේෂ්ඨ ප්‍රතිඵලයකි! 🎉',gd:'හොඳ ප්‍රතිඵලයකි! දිගටම ඉගෙනගන්න! 💪',pr:'දිගටම ඉගෙනීම කරගෙන යන්න. නැවත උත්සාහ! 📖'};
+  document.getElementById('rRing').className='rh-ring '+cls;
+  document.getElementById('rRing').textContent=em;
+  document.getElementById('rPct').className='rh-pct '+cls;
+  document.getElementById('rPct').textContent=pct+'%';
+  document.getElementById('rMsg').textContent=msgs[cls];
+  document.getElementById('rC').textContent=sc;
+  document.getElementById('rW').textContent=tot-sc;
+  document.getElementById('rT').textContent=tot;
+  var rvHtml='';
+  S.hist.forEach(function(h,i){
+    var wrongLine=h.ok?'':'<div style="color:var(--red);margin-bottom:2px">ඔබේ: '+h.o[h.ch]+'</div>';
+    rvHtml+='<div class="ri '+(h.ok?'rc':'rw')+'"><div class="ri-q">Q'+(i+1)+'. '+h.q+'</div>';
+    rvHtml+='<div class="ri-a"><span class="ri-tag '+(h.ok?'c':'w')+'">'+(h.ok?'✓':'✗')+'</span>';
+    rvHtml+='<div class="ri-d">'+wrongLine+'<div><strong>නිවැරදි: '+h.o[h.cor]+'</strong></div>';
+    rvHtml+='<div style="margin-top:3px;opacity:.75">'+h.e+'</div></div></div></div>';
+  });
+  document.getElementById('rvList').innerHTML=rvHtml;
+  // save button visibility
+  var sa=document.getElementById('saveArea');
+  var sm=document.getElementById('saveMsg');
+  var sb=document.getElementById('saveBtn');
+  if(sa) sa.style.display=CU?'block':'none';
+  if(sm) sm.style.display='none';
+  if(sb){ sb.style.display='block'; sb.disabled=false; sb.textContent='💾 ලකුණු Save කරන්න'; }
+  go('results');
+}
+
+</script>
+</body>
+</html>
